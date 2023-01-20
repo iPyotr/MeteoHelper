@@ -1,6 +1,7 @@
 import tkinter as tk
 import datetime
 from tkinter import ttk
+from def_file import *
 
 root = tk.Tk()
 root.geometry("1000x800+{}+{}".format(root.winfo_screenwidth()//2-500, root.winfo_screenheight()//2-400))
@@ -64,6 +65,8 @@ table.column("col7", width=100)
 table.column("col8", width=100)
 table.column("col9", width=100)
 table.pack(expand=1, fill="both")
+
+print(wind_speed_cod(10))
 
 update_time()
 root.mainloop()
