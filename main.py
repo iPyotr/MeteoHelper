@@ -66,7 +66,8 @@ table.column("col8", width=100)
 table.column("col9", width=100)
 table.pack(expand=1, fill="both")
 
-print(wind_speed_cod(10))
+print(wind_speed_cod(25))
+print(pressure_helideck_cod(777))
 
 update_time()
 root.mainloop()
