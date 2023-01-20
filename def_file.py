@@ -15,7 +15,11 @@ def wind_speed_cod(data): # Средняя скорость ветра (м/c)
 def wind_gust_cod(data): # Максимальный порыв ветра (м/с)
     '''Средняя скорость ветра (м/c)
     Принимает значение максимальной скорости ветра в м/с и возвращает код METAR'''
-    pass
+    data = int(data)
+    if data == 0:
+        return ''
+    else:
+        return str(data)
 
 def wind_direction_cod(data): # Направление ветра (град)
     '''Направление ветра (град)
