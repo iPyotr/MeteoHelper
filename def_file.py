@@ -1,5 +1,9 @@
 from datetime import datetime, timedelta
 
+clouds_type = ['Кучево дождевые', 'кучевые плоские', 'слоисто-дождевые', 'разорванно-дождевые', 'слоистые',
+          'слоисто-кучевые', 'высокослоистые', 'высококучевые', 'пересто-кучевые', 'перистые']
+
+weather_conditions_types = ["Дождь", "Град", "Снег"]
 def date_time_cod(date_time_string):  # Дата и время передачи сводки
     '''Дата и время передачи сводки
     Принимает значение даты и времени формирования сводки и возвращает код METAR'''
@@ -11,7 +15,46 @@ def date_time_cod(date_time_string):  # Дата и время передачи 
         date_time_obj = date_time_obj.replace(minute=0)
     else:
         date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
-    return date_time_obj.strftime("%d%H%M")
+    global date_time_for_metar
+    date_time_for_metar = date_time_obj.strftime("%d%H%M")
+    return date_time_for_metar
+
+
+def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
+    wind_speed = wind_speed_cod(ws)
+    wind_gust = wind_gust_cod(wg)
+    wind_direction = wind_direction_cod(wd)
+    visibility = visibility_cod(v)
+    weather_conditions = weather_conditions_cod(wc)
+    pressure_helideck = pressure_helideck_cod(ph)
+    pressure_sea_level = pressure_sea_level_cod(psl)
+    temperature = temperature_cod(t)
+    dew_point_temperature = dew_point_temperature_cod(dpt)
+    humidity = humidity_cod(h)
+    total_clouds = total_clouds_cod(tc)
+    quantity_clouds = quantity_clouds_cod(qc)
+    cloud_base_lower = cloud_base_lower_cod(cbl)
+    cloud_form = cloud_form_cod(cf)
+    wave_height = wave_height_cod(wh)
+    metar_data = f'{date_time_for_metar}Z ' \
+                 f'{str(wind_direction)}' \
+                 f'{str(wind_speed)}' \
+                 f'G{str(wind_gust)}MPS ' \
+                 f'{str(visibility)} ' \
+                 f'{str(weather_conditions)} ' \
+                 f'{str(pressure_helideck)} ' \
+                 f'{str(pressure_sea_level)} ' \
+                 f'{str(temperature)}/' \
+                 f'{str(dew_point_temperature)} ' \
+                 f'{str(humidity)} ' \
+                 f'{str(total_clouds)} ' \
+                 f'{str(quantity_clouds)} ' \
+                 f'{str(cloud_base_lower)} ' \
+                 f'{str(cloud_form)} ' \
+                 f'{str(wave_height)}'
+    return metar_data
+
+    pass
 
 
 def wind_speed_cod(data):  # Средняя скорость ветра (м/c)
@@ -34,10 +77,15 @@ def wind_gust_cod(data):  # Максимальный порыв ветра (м/�
         return str(data)
 
 
-def wind_direction_cod(data):  # Направление ветра (град)
+def wind_direction_cod(n):  # Направление ветра (град)
     '''Направление ветра (град)
     Принимает значение направления ветра в градусах(кратное 10) и возвращает код METAR'''
-    pass
+    n = round(int(n), -1)
+    if n > 360:
+        n = 360
+    elif n < 0:
+        n = 0
+    return "{:03d}".format(n)
 
 
 def visibility_cod(data):  # Горизонтальная видимость (км)
@@ -92,8 +140,6 @@ def quantity_clouds_cod(data):  # Количество нижнего яруса
     '''Количество нижнего яруса (октанты)
     Принимает значение количества нижнего яруса облачности в октантах и возвращает код METAR'''
     pass
-
-
 
 
 def cloud_base_lower_cod(data):  # Высота НГО (м)
