@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 '''Utilities for opening files or URLs in the registered default application
 and for sending e-mail using the user's preferred composer.
 

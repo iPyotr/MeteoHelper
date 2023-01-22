@@ -1,7 +1,17 @@
-def date_time_cod(data):  # Дата и время передачи сводки
+from datetime import datetime, timedelta
+
+def date_time_cod(date_time_string):  # Дата и время передачи сводки
     '''Дата и время передачи сводки
     Принимает значение даты и времени формирования сводки и возвращает код METAR'''
-    pass
+    date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
+    minute = date_time_obj.minute
+    if 15 <= minute <= 44:
+        date_time_obj = date_time_obj.replace(minute=30)
+    elif minute < 30:
+        date_time_obj = date_time_obj.replace(minute=0)
+    else:
+        date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+    return date_time_obj.strftime("%d%H%M")
 
 
 def wind_speed_cod(data):  # Средняя скорость ветра (м/c)
@@ -82,6 +92,8 @@ def quantity_clouds_cod(data):  # Количество нижнего яруса
     '''Количество нижнего яруса (октанты)
     Принимает значение количества нижнего яруса облачности в октантах и возвращает код METAR'''
     pass
+
+
 
 
 def cloud_base_lower_cod(data):  # Высота НГО (м)

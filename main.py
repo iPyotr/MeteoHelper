@@ -4,9 +4,10 @@ import customtkinter
 from datetime import datetime
 import time
 import os
-from mailto import mailto
+from mailto import *
 import subprocess
 import win32com.client
+from def_file import *
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -211,6 +212,8 @@ class App(customtkinter.CTk):
         self.metar_output = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"), text="здесь будет МЕТАР код",
                                                        font=customtkinter.CTkFont(size=20, weight="normal"), bg_color='light gray')
         self.metar_output.grid(row=18, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
+        self.textbox_metar = customtkinter.CTkTextbox(self.tabview_weather.tab("Текущая погода"), height=0)
+        self.textbox_metar.grid(row=20, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
 
         # create textbox
@@ -260,16 +263,19 @@ class App(customtkinter.CTk):
         self.after(1000, self.update_clock)
 
     def click_metar(self):
-        metar_data = self.weather_conditions_optionmenu.get()
+        date_time = date_time_cod(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")))
+
+        metar_data = str(date_time)
         self.metar_output.configure(text=metar_data)
+
+
 
 
     def send_email(self):
         data = self.metar_output.cget('text')
-        with open("metar.txt", "w") as file:
-            file.write(data)
-        subprocess.run(["notepad.exe", "metar.txt"])
-        self.mail_outlook()
+        self.textbox_metar.delete('1.0', 'end')
+        self.textbox_metar.insert('end', data)
+        print(datetime.utcnow())
 
     def mail_outlook(self):
         print('ok')
