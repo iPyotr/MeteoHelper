@@ -144,7 +144,7 @@ class App(customtkinter.CTk):
         # self.var_temperature_entry = customtkinter.StringVar()
 
         self.temperature_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                        placeholder_text="", width=60)##################
+                                                        placeholder_text="", width=60)  ##################
         self.temperature_entry.configure(justify='center')
         self.temperature_entry.grid(row=9, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
         self.temperature_entry.bind("<KeyRelease>", self.update_humid)
@@ -157,7 +157,7 @@ class App(customtkinter.CTk):
         # self.var_dew_point_temperature_entry = customtkinter.StringVar()
 
         self.dew_point_temperature_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                                  placeholder_text="", width=60)##################
+                                                                  placeholder_text="", width=60)  ##################
         self.dew_point_temperature_entry.configure(justify='center')
         self.dew_point_temperature_entry.grid(row=10, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
         self.dew_point_temperature_entry.bind("<KeyRelease>", self.update_humid)
@@ -257,19 +257,19 @@ class App(customtkinter.CTk):
         self.checkbox_1.grid(row=15, column=0, pady=(10, 10), padx=20, sticky="n")
 
         self.metar_button = customtkinter.CTkButton(master=self.tabview_weather.tab("Текущая погода"),
-                                                    command=self.click_metar, text='METAR', width=100, height=35)
-        self.metar_button.grid(row=17, column=0, padx=20, pady=10)
+                                                    command=self.click_metar, text='METAR', width=900, height=35)
+        self.metar_button.grid(row=17, column=0, columnspan=5,  padx=20, pady=10)
         self.email_button = customtkinter.CTkButton(master=self.tabview_weather.tab("Текущая погода"),
-                                                    command=self.send_email, text='Отправить сводку', width=50,
+                                                    command=self.send_email, text='Отправить сводку', width=900,
                                                     height=35)
-        self.email_button.grid(row=19, column=0, padx=20, pady=10)
+        self.email_button.grid(row=19, column=0, padx=20, pady=10, columnspan=5)
         self.metar_output = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
                                                    text="здесь будет код METAR",
                                                    font=customtkinter.CTkFont(size=16, weight="normal"))
         self.metar_output.configure(justify='center')
         self.metar_output.grid(row=18, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
-        self.textbox_metar = customtkinter.CTkTextbox(self.tabview_weather.tab("Текущая погода"), height=0)
-        self.textbox_metar.grid(row=20, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
+        # self.textbox_metar = customtkinter.CTkTextbox(self.tabview_weather.tab("Текущая погода"), height=0)
+        # self.textbox_metar.grid(row=20, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
         # create textbox
         self.textbox_tab3 = customtkinter.CTkTextbox(self.tabview_weather.tab("Процедура"))
@@ -294,13 +294,13 @@ class App(customtkinter.CTk):
         self.windgust_entry.insert(0, 37)
         self.visibility_entry.insert(0, 1500)
         self.wind_dir_entry.insert(0, 250)
-        # self.temperature_entry.insert(0, -39)
+        self.temperature_entry.insert(0, -21.6)
         self.humidity_entry.insert(0, 0)
         self.cloud_base_lower_entry.insert(0, 700)
         self.pressure_helideck_entry.insert(0, 747.7)
         self.pressure_sea_level_entry.insert(0, 1012.4)
         self.wave_height_entry.insert(0, 10)
-        # self.dew_point_temperature_entry.insert(0, 10)
+        self.dew_point_temperature_entry.insert(0, -22.9)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
         self.weather_conditions_optionmenu2.set("")
         self.weather_conditions_optionmenu2.grid_remove()
@@ -346,7 +346,6 @@ class App(customtkinter.CTk):
         self.humidity_entry.delete(0, 'end')
         self.humidity_entry.insert('end', RH)
 
-
     def change_state_wc2(self, event):
         if self.optionmenu_var.get() == "явлений не наблюдается":
             self.weather_conditions_optionmenu2.set("")
@@ -355,25 +354,6 @@ class App(customtkinter.CTk):
             self.weather_conditions_optionmenu3.grid_remove()
         elif self.optionmenu_var.get() != "явлений не наблюдается":
             self.weather_conditions_optionmenu2.grid()
-
-    def humidity_calc(self, event):
-        '''Влажность воздуха (%)
-            e=E-A(t-t_1)P,
-            где E — давление насыщения при температуре смоченного термометра,
-            A — постоянная психрометра, принимаемая равной 0.0007947,
-            P — атмосферное давление, принимается равным 1000 гПа
-            t — показания сухого термометра
-            t_1 — показания смоченного термометра
-            '''
-
-        # E = 1000
-        # A = 0.0007947
-        # P = 1000
-        # t = self.temperature_entry.cget()
-        # t_1 = 1
-        # e = E - A * (t - t_1) * P
-        # self.humidity_entry.insert(0, e)
-        pass
 
     def change_state_wc3(self, event):
         if self.optionmenu_var2.get() == "явлений не наблюдается":
@@ -432,13 +412,16 @@ class App(customtkinter.CTk):
                               self.wave_height_entry.get()
                               )
         metar_data = f'ЩЭФАП METAR UHSC {metar_all}'
+        if self.checkbox_1.get() == 1:
+            metar_data += ' ' + self.comments.get() + ' -'
+        else:
+            metar_data += ' -'
         self.metar_output.configure(text=metar_data)  # #
 
     def send_email(self):
         data = self.metar_output.cget('text')
-        self.textbox_metar.delete('1.0', 'end')
-        self.textbox_metar.insert('end', data)
-        print(datetime.utcnow())
+        # self.textbox_metar.delete('1.0', 'end')
+        # self.textbox_metar.insert('end', data)
         recipient = 'example@example.example'
         subject = 'METAR'
         mailto_link = f'mailto:{recipient}?subject={subject}&body={data}'
