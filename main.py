@@ -8,6 +8,7 @@ from mailto import *
 import subprocess
 import win32com.client
 from def_file import *
+import webbrowser
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -109,18 +110,29 @@ class App(customtkinter.CTk):
                                                                text="Атмосферное явление",
                                                                font=customtkinter.CTkFont(size=14, weight="bold"))
         self.weather_conditions_label.grid(row=6, column=0, padx=20, pady=(5, 0), sticky='E')
+        #
+        self.optionmenu_var = customtkinter.StringVar(value="явлений не наблюдается")
+        #
         self.weather_conditions_optionmenu = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
                                                                          dynamic_resizing=False,
-                                                                         values=weather_conditions_types, width=87)
+                                                                         values=weather_conditions_types, width=87,
+                                                                         command=self.change_state_wc2,
+                                                                         variable=self.optionmenu_var)
         self.weather_conditions_optionmenu.grid(row=6, column=1, padx=20, pady=(5, 0), sticky="w")
-
+        #
+        self.optionmenu_var2 = customtkinter.StringVar(value="явлений не наблюдается")
         self.weather_conditions_optionmenu2 = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
                                                                           dynamic_resizing=False,
-                                                                          values=weather_conditions_types, width=87)
+                                                                          values=weather_conditions_types, width=87,
+                                                                          command=self.change_state_wc3,
+                                                                          variable=self.optionmenu_var2)
         self.weather_conditions_optionmenu2.grid(row=7, column=1, padx=20, pady=(5, 0), sticky="w")
+        self.optionmenu_var3 = customtkinter.StringVar(value="явлений не наблюдается")
         self.weather_conditions_optionmenu3 = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
                                                                           dynamic_resizing=False,
-                                                                          values=weather_conditions_types, width=87)
+                                                                          values=weather_conditions_types, width=87,
+                                                                          command=self.change_state_wc3,
+                                                                          variable=self.optionmenu_var3)
         self.weather_conditions_optionmenu3.grid(row=8, column=1, padx=20, pady=(5, 0), sticky="w")
 
         # Температура воздуха(град)
@@ -128,19 +140,29 @@ class App(customtkinter.CTk):
                                                         text="Температура воздуха(град)",
                                                         font=customtkinter.CTkFont(size=14, weight="bold"))
         self.temperature_label.grid(row=9, column=0, padx=20, pady=(5, 0), sticky='E')
+
+        # self.var_temperature_entry = customtkinter.StringVar()
+
         self.temperature_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                        placeholder_text="", width=60)
+                                                        placeholder_text="", width=60)##################
         self.temperature_entry.configure(justify='center')
         self.temperature_entry.grid(row=9, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.temperature_entry.bind("<KeyRelease>", self.update_humid)
         # Температура точки росы(град)
         self.dew_point_temperature_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
                                                                   text="Температура точки росы(град)",
                                                                   font=customtkinter.CTkFont(size=14, weight="bold"))
         self.dew_point_temperature_label.grid(row=10, column=0, padx=20, pady=(5, 0), sticky='E')
+
+        # self.var_dew_point_temperature_entry = customtkinter.StringVar()
+
         self.dew_point_temperature_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                                  placeholder_text="", width=60)
+                                                                  placeholder_text="", width=60)##################
         self.dew_point_temperature_entry.configure(justify='center')
         self.dew_point_temperature_entry.grid(row=10, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.dew_point_temperature_entry.bind("<KeyRelease>", self.update_humid)
+        # self.dew_point_temperature_entry.bind("<FocusOut>", self.update_entry1)
+
         # Влажность воздуха (%)
         self.humidity_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
                                                      text="Влажность воздуха (%)",
@@ -228,7 +250,7 @@ class App(customtkinter.CTk):
 
         #######################
         self.comments = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                               placeholder_text="ЩЭФАП METAR UHSC 220500Z 35017G32MPS 0400 SN VV006 M10/M10 Q1006 RMK QBB180 QFE749 HSAUT000 -")
+                                               placeholder_text="ЩЭФАП METAR UHSC 220500Z 35017G32MPS 0400 SN VV006 M10/M10 Q1006 RMK QBB180 QFE749 HSAUT000-")
         self.comments.grid(row=14, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
         self.checkbox_1 = customtkinter.CTkCheckBox(master=self.tabview_weather.tab("Текущая погода"),
                                                     text='Включить комментарий в сводку')
@@ -244,7 +266,7 @@ class App(customtkinter.CTk):
         self.metar_output = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
                                                    text="здесь будет код METAR",
                                                    font=customtkinter.CTkFont(size=16, weight="normal"))
-        self.metar_output.configure(justify = 'center')
+        self.metar_output.configure(justify='center')
         self.metar_output.grid(row=18, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
         self.textbox_metar = customtkinter.CTkTextbox(self.tabview_weather.tab("Текущая погода"), height=0)
         self.textbox_metar.grid(row=20, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
@@ -272,18 +294,18 @@ class App(customtkinter.CTk):
         self.windgust_entry.insert(0, 37)
         self.visibility_entry.insert(0, 1500)
         self.wind_dir_entry.insert(0, 250)
-        self.temperature_entry.insert(0, -39)
-        self.humidity_entry.insert(0, 60)
+        # self.temperature_entry.insert(0, -39)
+        self.humidity_entry.insert(0, 0)
         self.cloud_base_lower_entry.insert(0, 700)
         self.pressure_helideck_entry.insert(0, 747.7)
-        self.pressure_sea_level_entry.insert(0, 1012)
+        self.pressure_sea_level_entry.insert(0, 1012.4)
         self.wave_height_entry.insert(0, 10)
-        self.dew_point_temperature_entry.insert(0, 10)
+        # self.dew_point_temperature_entry.insert(0, 10)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
-        self.weather_conditions_optionmenu2.set(" ")
-        self.weather_conditions_optionmenu2.configure(state="enable")
-        self.weather_conditions_optionmenu3.set(" ")
-        self.weather_conditions_optionmenu3.configure(state="enable")
+        self.weather_conditions_optionmenu2.set("")
+        self.weather_conditions_optionmenu2.grid_remove()
+        self.weather_conditions_optionmenu3.set("")
+        self.weather_conditions_optionmenu3.grid_remove()
         self.quantity_clouds_optionmenu.set("")
         self.total_clouds_optionmenu.set("")
         self.cloud_form_optionmenu.set("")
@@ -294,21 +316,76 @@ class App(customtkinter.CTk):
         self.appearance_mode_optionemenu.set("Light")
         self.scaling_optionemenu.set("100%")
         self.textbox_tab3.insert("0.0",
-                                 "Наставление по наблюдению за погодой\n\n" + "Результаты наблюдений и специальных сводок фиксируются в специальном журнале и передаются открытым текстом в установленные адреса (в случае недоступности сервиса передачи сообщений METAR). При передаче метеорологических данных в автоматическом режиме запись в журнал отменяется (фиксируются только данные об особых явлениях погоды и наличии кучево-дождевой и мощно-кучевой облачности)." * 20)
+                                 "Наставление по наблюдению за погодой\n\n" +
+                                 "Результаты наблюдений и специальных сводок фиксируются в специальном журнале "
+                                 "и передаются открытым текстом в установленные адреса (в случае недоступности "
+                                 "сервиса передачи сообщений METAR). При передаче метеорологических данных в "
+                                 "автоматическом режиме запись в журнал отменяется (фиксируются только данные об "
+                                 "особых явлениях погоды и наличии кучево-дождевой и мощно-кучевой облачности)." * 20)
+
+        self.wc_option = self.weather_conditions_optionmenu.get()
+        self.wc_option2 = self.weather_conditions_optionmenu2.get()
+        self.wc_option3 = self.weather_conditions_optionmenu3.get()
 
     def open_input_dialog_event(self):
         dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="Всплывающее окно ввода данных")
         print("Всплывающее окно ввода данных:", dialog.get_input())
 
-    def change_state_wc(self, event):
-        if self.weather_conditions_optionmenu.get() != "":
-            self.weather_conditions_optionmenu2.configure(state="enabled")
-            print(self.weather_conditions_optionmenu.get())
-        else:
-            self.weather_conditions_optionmenu2.set("")
-            self.weather_conditions_optionmenu2.configure(state="disabled")
-            print("пусто")
+    def update_humid(self, *args):
+        '''RH = (e / e_s) * 100 где:
+            e = (6.11 * 10^((7.5 * Td) / (237.7 + Td))) * (10^(2) / (T + 273.15)) - абсолютная влажность воздуха
+            e_s = (6.11 * 10^((7.5 * T) / (237.7 + T))) * (10^(2) / (T + 273.15)) - абсолютная влажность воздуха при сухом воздухе
+            RH - относительная влажность воздуха в процентах
+            '''
 
+        T = float(self.temperature_entry.get())
+        Td = float(self.dew_point_temperature_entry.get())
+        e = (6.11 * 10 ** ((7.5 * Td) / (237.7 + Td))) * (10 ** (2) / (T + 273.15))
+        e_s = (6.11 * 10 ** ((7.5 * T) / (237.7 + T))) * (10 ** (2) / (T + 273.15))
+        RH = int((e / e_s) * 100)
+        self.humidity_entry.delete(0, 'end')
+        self.humidity_entry.insert('end', RH)
+
+
+    def change_state_wc2(self, event):
+        if self.optionmenu_var.get() == "явлений не наблюдается":
+            self.weather_conditions_optionmenu2.set("")
+            self.weather_conditions_optionmenu2.grid_remove()
+            self.weather_conditions_optionmenu3.set("")
+            self.weather_conditions_optionmenu3.grid_remove()
+        elif self.optionmenu_var.get() != "явлений не наблюдается":
+            self.weather_conditions_optionmenu2.grid()
+
+    def humidity_calc(self, event):
+        '''Влажность воздуха (%)
+            e=E-A(t-t_1)P,
+            где E — давление насыщения при температуре смоченного термометра,
+            A — постоянная психрометра, принимаемая равной 0.0007947,
+            P — атмосферное давление, принимается равным 1000 гПа
+            t — показания сухого термометра
+            t_1 — показания смоченного термометра
+            '''
+
+        # E = 1000
+        # A = 0.0007947
+        # P = 1000
+        # t = self.temperature_entry.cget()
+        # t_1 = 1
+        # e = E - A * (t - t_1) * P
+        # self.humidity_entry.insert(0, e)
+        pass
+
+    def change_state_wc3(self, event):
+        if self.optionmenu_var2.get() == "явлений не наблюдается":
+            self.weather_conditions_optionmenu2.set("")
+            self.weather_conditions_optionmenu2.grid_remove()
+            self.weather_conditions_optionmenu3.set("")
+            self.weather_conditions_optionmenu3.grid_remove()
+        elif self.optionmenu_var2.get() != "явлений не наблюдается":
+            self.weather_conditions_optionmenu3.grid()
+        if self.optionmenu_var3.get() == "явлений не наблюдается":
+            self.weather_conditions_optionmenu3.set("")
+            self.weather_conditions_optionmenu3.grid_remove()
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -331,7 +408,7 @@ class App(customtkinter.CTk):
         self.date_label.configure(text=current_date_utc)
         self.after(1000, self.update_clock)
 
-    def click_metar(self):
+    def click_metar(self):  # формирование кода метар
         self.metar_output.configure(text='проверь введённые данные')
         global dt_metar
         wc = [self.weather_conditions_optionmenu.get(),
@@ -355,14 +432,17 @@ class App(customtkinter.CTk):
                               self.wave_height_entry.get()
                               )
         metar_data = f'ЩЭФАП METAR UHSC {metar_all}'
-        self.metar_output.configure(text=metar_data)
-
+        self.metar_output.configure(text=metar_data)  # #
 
     def send_email(self):
         data = self.metar_output.cget('text')
         self.textbox_metar.delete('1.0', 'end')
         self.textbox_metar.insert('end', data)
         print(datetime.utcnow())
+        recipient = 'example@example.example'
+        subject = 'METAR'
+        mailto_link = f'mailto:{recipient}?subject={subject}&body={data}'
+        webbrowser.open(mailto_link)
 
     def mail_outlook(self):
         print('ok')
