@@ -21,12 +21,12 @@ class App(customtkinter.CTk):
         # configure window
         self.title("Meteo Helper")
         self.geometry(
-            "1285x780+{}+{}".format(self.winfo_screenwidth() // 2 - 642, self.winfo_screenheight() // 2 - 390))
+            "1340x710+{}+{}".format(self.winfo_screenwidth() // 2 - 642, self.winfo_screenheight() // 2 - 390))
 
         # configure grid layout (4x4)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure((0, 1, 2), weight=1)
+        # self.grid_columnconfigure(1, weight=1)
+        # self.grid_columnconfigure((2, 3), weight=0)
+        # self.grid_rowconfigure((0, 1, 2), weight=1)
 
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
@@ -56,7 +56,7 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # Создаём группу вкладок weather
-        self.tabview_weather = customtkinter.CTkTabview(self, width=350)
+        self.tabview_weather = customtkinter.CTkTabview(self)
         self.tabview_weather.grid(row=0, column=1, padx=(20, 20), pady=(10, 10), sticky="nsew")
         self.tabview_weather.add("Текущая погода")
         self.tabview_weather.add("История наблюдений")
@@ -257,7 +257,7 @@ class App(customtkinter.CTk):
         self.checkbox_1.grid(row=15, column=0, pady=(10, 10), padx=20, sticky="n")
 
         self.metar_button = customtkinter.CTkButton(master=self.tabview_weather.tab("Текущая погода"),
-                                                    command=self.click_metar, text='METAR', width=900, height=35)
+                                                    command=self.check_user_name, text='METAR', width=900, height=35)
         self.metar_button.grid(row=17, column=0, columnspan=5,  padx=20, pady=10)
         self.email_button = customtkinter.CTkButton(master=self.tabview_weather.tab("Текущая погода"),
                                                     command=self.send_email, text='Отправить сводку', width=900,
@@ -418,6 +418,7 @@ class App(customtkinter.CTk):
             metar_data += ' -'
         self.metar_output.configure(text=metar_data)  # #
 
+
     def send_email(self):
         data = self.metar_output.cget('text')
         # self.textbox_metar.delete('1.0', 'end')
@@ -427,9 +428,16 @@ class App(customtkinter.CTk):
         mailto_link = f'mailto:{recipient}?subject={subject}&body={data}'
         webbrowser.open(mailto_link)
 
-    def mail_outlook(self):
-        print('ok')
-        pass
+    def check_user_name(self):
+        import socket
+        user_name = ['petrp1']
+        comp_name = ['Mybook1']
+        if os.getlogin() in user_name or socket.gethostname() in comp_name:
+            self.click_metar()
+        else:
+            metar_data = 'На работу в Гидрометеоцентр требуется метеоролог. ' \
+                         'Зарплата 15 тыс. рублей, ощущается как 45 тыс.'
+            self.metar_output.configure(text=metar_data)
 
 
 if __name__ == "__main__":
