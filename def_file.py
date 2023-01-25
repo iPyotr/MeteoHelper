@@ -40,7 +40,7 @@ wc_dictionary = {'явлений не наблюдается': 'NSW',
                  'переохлажденная морось': 'FZDZ',
                  'гроза': 'TS',
                  'шквал': 'SQ',
-                 '':' '
+                 '': ' '
                  }
 
 
@@ -76,24 +76,22 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     cloud_base_lower = cloud_base_lower_cod(cbl)
     cloud_form = cloud_form_cod(cf)
     wave_height = wave_height_cod(wh)
+    rmk = f' {str(pressure_helideck)} {str(wave_height)}'
+    cbl_round = str((int(cbl) // 10) * 10).zfill(3)
+    if int(cbl) < 200:
+        rmk = f' QBB{cbl_round} {str(pressure_helideck)} {str(wave_height)}'
     metar_data = f'{date_time_for_metar}Z ' \
                  f'{str(wind_direction)}' \
                  f'{str(wind_speed)}' \
                  f'G{str(wind_gust)}MPS ' \
                  f'{str(visibility)} ' \
                  f'{str(weather_conditions)} ' \
+                 f'{str(total_clouds)} ' \
                  f'{str(temperature)}/' \
                  f'{str(dew_point_temperature)} ' \
-                 f'{str(pressure_helideck)} ' \
-                 f'{str(pressure_sea_level)} ' \
-                 f'{str(humidity)} ' \
-                 f'{str(total_clouds)} ' \
-                 f'{str(quantity_clouds)} ' \
-                 f'{str(cloud_base_lower)} ' \
-                 f'{str(cloud_form)} ' \
-                 f'{str(wave_height)}'
+                 f'{str(pressure_sea_level)} RMK' \
+                 f'{rmk}'
     return metar_data
-
 
 
 def wind_speed_cod(data):  # Средняя скорость ветра (м/c)
@@ -140,7 +138,7 @@ def visibility_cod(data):  # Горизонтальная видимость (к
         # return '0' + str((x // 50) * 50)
         return str((x // 50) * 50).zfill(4)
     elif x < 5000:
-        return (x // 100) * 100
+        return str((x // 100) * 100).zfill(4)
     elif x < 10000:
         return (x // 1000) * 1000
     else:
@@ -151,7 +149,9 @@ def weather_conditions_cod(wc1):  # Атмосферное явление. Мо�
     '''Атмосферное явление
     Принимает значение погодных явлений(может быть указано несколько явлений) и возвращает код METAR'''
     wc_all = wc_dictionary[wc1[0]]
-    if len(wc1) > 1:
+    if wc1[0] == 'явлений не наблюдается':
+        return ''
+    elif len(wc1) > 1:
         for i in range(1, len(wc1)):
             wc_all += " " + wc_dictionary[wc1[i]]
     return wc_all.strip()
@@ -173,7 +173,7 @@ def pressure_sea_level_cod(data):  # Давление на уровне моря
 def temperature_cod(data):  # Температура воздуха(град)
     '''Температура воздуха(град)
     Принимает значение температуры воздуха в градусах и возвращает код METAR'''
-    n = int(float(data))
+    n = int(round(float(data)))
     if n < 0:
         n = abs(n)
         n = "M" + str(n).zfill(2)
@@ -185,7 +185,7 @@ def temperature_cod(data):  # Температура воздуха(град)
 def dew_point_temperature_cod(data):  # Температура точки росы(град)
     '''Температура точки росы(град)
     Принимает значение температуры точки росы в градусах и возвращает код METAR'''
-    n = int(float(data))
+    n = int(round(float(data)))
     if n < 0:
         n = abs(n)
         n = "M" + str(n).zfill(2)
@@ -206,9 +206,33 @@ def humidity_cod(data):  # Влажность воздуха (%)
     pass
 
 
-def total_clouds_cod(data):  # Общее количество облачности (октанты)
+def total_clouds_cod(data):  # Общее количество облачности в сводку метар
     '''Общее количество облачности (октанты)
-    Принимает значение количества облачности в октантах и возвращает код METAR'''
+    Принимает значение количества облачности в октантах
+    количество нижнего яруса в октантах
+    горизонтальную видимость в метрах
+    высоту нижней границы облачности в метрах
+    и возвращает код METAR'''
+    visibility_h = int(data[0])
+    qt_clouds = int(data[1])
+    qt_lower = int(data[2])
+    ngo = int(data[3])
+
+    if ngo > 1500:
+        return 'NSC'
+    elif visibility_h < 1000:
+        return 'VV' + str(ngo // 30).zfill(3)
+    elif visibility_h > 1000 and qt_lower < 3:
+        return 'FEW' + str(ngo // 30).zfill(3)
+    elif visibility_h > 1000 and 3 <= qt_lower <= 4:
+        return 'SCT' + str(ngo // 30).zfill(3)
+    elif visibility_h > 1000 and 5 <= qt_lower <= 7:
+        return 'BKN' + str(ngo // 30).zfill(3)
+    elif visibility_h > 1000 and qt_lower == 8:
+        return 'OVC' + str(ngo // 30).zfill(3)
+
+    print(visibility_h, qt_clouds, qt_lower, ngo)
+
     pass
 
 
@@ -246,4 +270,5 @@ def cloud_form_cod(data):  # Форма облачности
 def wave_height_cod(data):  # Высота преобладающих волн (м)
     ''' Высота преобладающих волн (м) с точностью до 0.1 метра
     Принимает значение высоты преобладающих волн в метрах и возвращает код METAR'''
-    pass
+    x = int(data)
+    return 'HSAUT' + str((x // 10) * 10).zfill(3)

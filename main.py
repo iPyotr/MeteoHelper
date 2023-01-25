@@ -4,7 +4,7 @@ import customtkinter
 from datetime import datetime
 import time
 import os
-from mailto import *
+from test_cod import *
 import subprocess
 import win32com.client
 from def_file import *
@@ -21,17 +21,12 @@ class App(customtkinter.CTk):
         # configure window
         self.title("Meteo Helper")
         self.geometry(
-            "1340x710+{}+{}".format(self.winfo_screenwidth() // 2 - 642, self.winfo_screenheight() // 2 - 390))
-
-        # configure grid layout (4x4)
-        # self.grid_columnconfigure(1, weight=1)
-        # self.grid_columnconfigure((2, 3), weight=0)
-        # self.grid_rowconfigure((0, 1, 2), weight=1)
+            "1340x690+{}+{}".format(self.winfo_screenwidth() // 2 - 700, self.winfo_screenheight() // 2 - 340))
 
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
-        self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(4, weight=1)
+        self.sidebar_frame.grid(row=0, column=0, sticky="nsew", rowspan=20)
+        self.sidebar_frame.grid_rowconfigure(5, weight=1)
         self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Лунская-А",
                                                  font=customtkinter.CTkFont(size=24, weight="bold", underline=True))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
@@ -42,242 +37,259 @@ class App(customtkinter.CTk):
                                                  font=customtkinter.CTkFont(size=20, weight="bold"))
         self.time_label.grid(row=2, column=0, padx=20, pady=10)
 
+        self.weather_button = customtkinter.CTkButton(master=self.sidebar_frame, command=self.weather_frame_visibility,
+                                                    text='Сводка', width=120, height=30)
+        self.weather_button.grid(row=3, column=0, padx=0, pady=(10, 0), sticky='n')
+        self.history_button = customtkinter.CTkButton(master=self.sidebar_frame, command=self.history_frame_visibility,
+                                                    text='История', width=120, height=30)
+        self.history_button.grid(row=4, column=0, padx=0, pady=(10, 0), sticky='n')
+        self.about_button = customtkinter.CTkButton(master=self.sidebar_frame, command=self.about_frame_visibility,
+                                                      text='О программе', width=120, height=30)
+        self.about_button.grid(row=5, column=0, padx=0, pady=(10, 0), sticky='n')
+
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Цветовая схема:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_label.grid(row=8, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame,
                                                                        values=["Light", "Dark", "System"],
                                                                        command=self.change_appearance_mode_event)
-        self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
+        self.appearance_mode_optionemenu.grid(row=9, column=0, padx=20, pady=(10, 10))
         self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="Масштаб интерфейса:", anchor="w")
-        self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
+        self.scaling_label.grid(row=17, column=0, padx=20, pady=(10, 0))
         self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame,
                                                                values=["80%", "90%", "100%", "110%", "120%"],
                                                                command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
+        self.scaling_optionemenu.grid(row=18, column=0, padx=20, pady=(10, 20))
 
-        # Создаём группу вкладок weather
-        self.tabview_weather = customtkinter.CTkTabview(self)
-        self.tabview_weather.grid(row=0, column=1, padx=(20, 20), pady=(10, 10), sticky="nsew")
-        self.tabview_weather.add("Текущая погода")
-        # self.tabview_weather.add("История наблюдений")
-        # self.tabview_weather.add("Процедура")
-        self.tabview_weather.tab("Текущая погода").grid_columnconfigure(1,
-                                                                        weight=1)  # configure grid of individual tabs
-        # self.tabview_weather.tab("История наблюдений").grid_columnconfigure(0, weight=1)
-        # self.tabview_weather.tab("Процедура").grid_columnconfigure(1, weight=1)
-        # self.font_table = customtkinter.CTkFont(size=14, weight="bold")
+
+        # Создаём Frame weather
+        self.weather_frame = customtkinter.CTkFrame(self, width=1000, height=600, corner_radius=0)
+        self.weather_frame.grid(row=0, column=1, rowspan=20, sticky='NS', padx=(20, 20), pady=(10, 10))
+
+        # Создаём Frame history
+        self.history_frame = customtkinter.CTkFrame(self, width=1000, height=700, corner_radius=0)
+        self.history_frame.grid(row=0, column=1, rowspan=20, sticky="NS", padx=(20, 20), pady=(10, 10))
+
+        self.test_label = customtkinter.CTkLabel(self.history_frame,
+                                                            text="Переданные сводки",
+                                                            font=customtkinter.CTkFont(size=14, weight="bold"), width=930)
+        self.test_label.grid(row=0, column=0, padx=0, pady=(0, 0), sticky='NSEW')
+        #
+        # Создаём Frame about
+        self.about_frame = customtkinter.CTkFrame(self, width=1000, height=600, corner_radius=0)
+        self.about_frame.grid(row=0, column=1, rowspan=20, sticky="NS", padx=(20, 20), pady=(10, 10))
+        self.test_label_about = customtkinter.CTkLabel(self.about_frame,
+                                                 text="О программе",
+                                                 font=customtkinter.CTkFont(size=14, weight="bold"), width=930)
+        self.test_label_about.grid(row=0, column=0, padx=0, pady=(0, 0), sticky='NSEW')
+        #
+        #
+
         # Средняя скорость ветра (м/c)#
-        self.wind_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.test_label_weather = customtkinter.CTkLabel(self.weather_frame,
+                                                 text="Текущая погода",
+                                                 font=customtkinter.CTkFont(size=14, weight="bold"), width=930)
+        self.test_label_weather.grid(row=0, column=0, padx=0, pady=(0, 0), sticky='NSEW', columnspan=4)
+        #
+        self.wind_label = customtkinter.CTkLabel(self.weather_frame,
                                                  text="Средняя скорость ветра (м/c)",
                                                  font=customtkinter.CTkFont(size=14, weight="bold"), anchor='w')
-        self.wind_label.grid(row=2, column=0, padx=20, pady=(20, 0), sticky='E')
-        self.wind_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                 placeholder_text="m/s", width=60)
+        self.wind_label.grid(row=2, column=0, padx=(0, 10), pady=(20, 0), sticky='E')
+        self.wind_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                 placeholder_text="м/с", width=60)
         self.wind_entry.configure(justify='center')
-        self.wind_entry.grid(row=2, column=1, padx=(20, 20), pady=(20, 0), sticky="W")
+        self.wind_entry.grid(row=2, column=1, padx=(0, 0), pady=(20, 0), sticky="w")
 
         # Максимальный порыв ветра (м/с)
-        self.windgust_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.windgust_label = customtkinter.CTkLabel(self.weather_frame,
                                                      text="Максимальный порыв ветра (м/с)",
                                                      font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.windgust_label.grid(row=3, column=0, padx=20, pady=(5, 0), sticky='E')
-        self.windgust_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                     placeholder_text="m/s", width=60)
+        self.windgust_label.grid(row=3, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.windgust_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                     placeholder_text="м/с", width=60)
         self.windgust_entry.configure(justify='center')
-        self.windgust_entry.grid(row=3, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.windgust_entry.grid(row=3, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
 
         # Направление ветра (град)
-        self.wind_dir_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.wind_dir_label = customtkinter.CTkLabel(self.weather_frame,
                                                      text="Направление ветра (град)",
                                                      font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.wind_dir_label.grid(row=4, column=0, padx=20, pady=(5, 0), sticky='E')
-        self.wind_dir_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                     placeholder_text="", width=60)
+        self.wind_dir_label.grid(row=4, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.wind_dir_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                     placeholder_text="239", width=60)
         self.wind_dir_entry.configure(justify='center')
-        self.wind_dir_entry.grid(row=4, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.wind_dir_entry.grid(row=4, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
 
         # Горизонтальная видимость (км)
-        self.visibility_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
-                                                       text="Горизонтальная видимость (км)",
+        self.visibility_label = customtkinter.CTkLabel(self.weather_frame,
+                                                       text="Горизонтальная видимость (м)",
                                                        font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.visibility_label.grid(row=5, column=0, padx=20, pady=(5, 0), sticky='E')
-        self.visibility_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                       placeholder_text="", width=60)
+        self.visibility_label.grid(row=5, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.visibility_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                       placeholder_text="1389", width=60)
         self.visibility_entry.configure(justify='center')
-        self.visibility_entry.grid(row=5, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.visibility_entry.grid(row=5, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
         # Атмосферное явление
-        self.weather_conditions_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.weather_conditions_label = customtkinter.CTkLabel(self.weather_frame,
                                                                text="Атмосферное явление",
                                                                font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.weather_conditions_label.grid(row=6, column=0, padx=20, pady=(5, 0), sticky='E')
+        self.weather_conditions_label.grid(row=6, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
         #
         self.optionmenu_var = customtkinter.StringVar(value="явлений не наблюдается")
         #
-        self.weather_conditions_optionmenu = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.weather_conditions_optionmenu = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                          dynamic_resizing=False,
                                                                          values=weather_conditions_types, width=87,
                                                                          command=self.change_state_wc2,
                                                                          variable=self.optionmenu_var)
-        self.weather_conditions_optionmenu.grid(row=6, column=1, padx=20, pady=(5, 0), sticky="w")
+        self.weather_conditions_optionmenu.grid(row=6, column=1, padx=(0, 10), pady=(5, 0), sticky="w")
         #
         self.optionmenu_var2 = customtkinter.StringVar(value="явлений не наблюдается")
-        self.weather_conditions_optionmenu2 = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.weather_conditions_optionmenu2 = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                           dynamic_resizing=False,
                                                                           values=weather_conditions_types, width=87,
                                                                           command=self.change_state_wc3,
                                                                           variable=self.optionmenu_var2)
-        self.weather_conditions_optionmenu2.grid(row=7, column=1, padx=20, pady=(5, 0), sticky="w")
+        self.weather_conditions_optionmenu2.grid(row=7, column=1, padx=0, pady=(5, 0), sticky="w")
         self.optionmenu_var3 = customtkinter.StringVar(value="явлений не наблюдается")
-        self.weather_conditions_optionmenu3 = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.weather_conditions_optionmenu3 = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                           dynamic_resizing=False,
                                                                           values=weather_conditions_types, width=87,
                                                                           command=self.change_state_wc3,
                                                                           variable=self.optionmenu_var3)
-        self.weather_conditions_optionmenu3.grid(row=8, column=1, padx=20, pady=(5, 0), sticky="w")
+        self.weather_conditions_optionmenu3.grid(row=8, column=1, padx=0, pady=(5, 0), sticky="w")
 
         # Температура воздуха(град)
-        self.temperature_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.temperature_label = customtkinter.CTkLabel(self.weather_frame,
                                                         text="Температура воздуха(град)",
                                                         font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.temperature_label.grid(row=9, column=0, padx=20, pady=(5, 0), sticky='E')
+        self.temperature_label.grid(row=9, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
 
         # self.var_temperature_entry = customtkinter.StringVar()
 
-        self.temperature_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                        placeholder_text="", width=60)  ##################
+        self.temperature_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                        placeholder_text="00", width=60)  ##################
         self.temperature_entry.configure(justify='center')
-        self.temperature_entry.grid(row=9, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.temperature_entry.grid(row=9, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
         self.temperature_entry.bind("<KeyRelease>", self.update_humid)
         # Температура точки росы(град)
-        self.dew_point_temperature_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.dew_point_temperature_label = customtkinter.CTkLabel(self.weather_frame,
                                                                   text="Температура точки росы(град)",
                                                                   font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.dew_point_temperature_label.grid(row=10, column=0, padx=20, pady=(5, 0), sticky='E')
+        self.dew_point_temperature_label.grid(row=10, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
 
-        # self.var_dew_point_temperature_entry = customtkinter.StringVar()
-
-        self.dew_point_temperature_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                                  placeholder_text="", width=60)  ##################
+        self.dew_point_temperature_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                                  placeholder_text="00", width=60)  ##################
         self.dew_point_temperature_entry.configure(justify='center')
-        self.dew_point_temperature_entry.grid(row=10, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.dew_point_temperature_entry.grid(row=10, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
         self.dew_point_temperature_entry.bind("<KeyRelease>", self.update_humid)
-        # self.dew_point_temperature_entry.bind("<FocusOut>", self.update_entry1)
 
         # Влажность воздуха (%)
-        self.humidity_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
-                                                     text="Влажность воздуха (%)",
+        self.humidity_label = customtkinter.CTkLabel(self.weather_frame, text="Влажность воздуха (%)",
                                                      font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.humidity_label.grid(row=11, column=0, padx=20, pady=(5, 0), sticky='E')
-        self.humidity_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                     placeholder_text="", width=60)
+        self.humidity_label.grid(row=11, column=0, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.humidity_entry = customtkinter.CTkEntry(master=self.weather_frame, placeholder_text="", width=60)
         self.humidity_entry.configure(justify='center')
-        self.humidity_entry.grid(row=11, column=1, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.humidity_entry.grid(row=11, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
         # Общее количество облачности (октанты)
-        self.total_clouds_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.total_clouds_label = customtkinter.CTkLabel(self.weather_frame,
                                                          text="Общее количество облачности (октанты)",
                                                          font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.total_clouds_label.grid(row=2, column=2, padx=0, pady=(20, 0), sticky='E')
-        self.total_clouds_optionmenu = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.total_clouds_label.grid(row=2, column=2, padx=(0, 10), pady=(20, 0), sticky='E')
+        self.total_clouds_optionmenu = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                    dynamic_resizing=False,
-                                                                   values=['0', '1', '2', '4', '5', '6', '7', '8', '9'],
+                                                                   values=['0', '1', '2', '4', '5', '6', '7', '8'],
                                                                    width=87)
-        self.total_clouds_optionmenu.grid(row=2, column=3, padx=20, pady=(20, 0))
+        self.total_clouds_optionmenu.grid(row=2, column=3, padx=0, pady=(20, 0), sticky='W')
         # Количество нижнего яруса (октанты)
-        self.quantity_clouds_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.quantity_clouds_label = customtkinter.CTkLabel(self.weather_frame,
                                                             text="Количество нижнего яруса (октанты)",
                                                             font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.quantity_clouds_label.grid(row=3, column=2, padx=0, pady=(5, 0), sticky='E')
-        self.quantity_clouds_optionmenu = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.quantity_clouds_label.grid(row=3, column=2, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.quantity_clouds_optionmenu = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                       dynamic_resizing=False,
                                                                       values=['0', '1', '2', '4', '5', '6', '7', '8',
-                                                                              '9'], width=87)
-        self.quantity_clouds_optionmenu.grid(row=3, column=3, padx=20, pady=(5, 0))
+                                                                              ], width=87)
+        self.quantity_clouds_optionmenu.grid(row=3, column=3, padx=0, pady=(5, 0), sticky='W')
         # Высота НГО (м)
-        self.cloud_base_lower_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.cloud_base_lower_label = customtkinter.CTkLabel(self.weather_frame,
                                                              text="Высота НГО (м)",
                                                              font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.cloud_base_lower_label.grid(row=4, column=2, padx=0, pady=(5, 0), sticky='E')
-        self.cloud_base_lower_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                             placeholder_text="", width=60)
+        self.cloud_base_lower_label.grid(row=4, column=2, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.cloud_base_lower_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                             placeholder_text="237", width=60)
         self.cloud_base_lower_entry.configure(justify='center')
-        self.cloud_base_lower_entry.grid(row=4, column=3, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.cloud_base_lower_entry.grid(row=4, column=3, padx=(0, 0), pady=(5, 0), sticky="W")
         # Форма облачности
-        self.cloud_form_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.cloud_form_label = customtkinter.CTkLabel(self.weather_frame,
                                                        text="Форма облачности",
                                                        font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.cloud_form_label.grid(row=6, column=2, padx=0, pady=(5, 0), sticky='E')
-        self.cloud_form_optionmenu = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.cloud_form_label.grid(row=6, column=2, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.cloud_form_optionmenu = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                  dynamic_resizing=False,
                                                                  values=clouds_type, width=87)
-        self.cloud_form_optionmenu.grid(row=6, column=3, padx=20, pady=(5, 0))
-        self.cloud_form_optionmenu2 = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.cloud_form_optionmenu.grid(row=6, column=3, padx=0, pady=(5, 0), sticky='W')
+        self.cloud_form_optionmenu2 = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                   dynamic_resizing=False,
                                                                   values=clouds_type, width=87)
-        self.cloud_form_optionmenu2.grid(row=7, column=3, padx=20, pady=(5, 0))
-        self.cloud_form_optionmenu3 = customtkinter.CTkOptionMenu(self.tabview_weather.tab("Текущая погода"),
+        self.cloud_form_optionmenu2.grid(row=7, column=3, padx=0, pady=(5, 0), sticky='W')
+        self.cloud_form_optionmenu3 = customtkinter.CTkOptionMenu(self.weather_frame,
                                                                   dynamic_resizing=False,
                                                                   values=clouds_type, width=87)
-        self.cloud_form_optionmenu3.grid(row=8, column=3, padx=20, pady=(5, 0))
+        self.cloud_form_optionmenu3.grid(row=8, column=3, padx=0, pady=(5, 0), sticky='W')
         # Давление на уровне вертолетной площадки (мм.рт.ст.)
-        self.pressure_helideck_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.pressure_helideck_label = customtkinter.CTkLabel(self.weather_frame,
                                                               text="Давление на уровне вертолетной площадки\n(мм.рт.ст.)",
                                                               font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.pressure_helideck_label.grid(row=9, column=2, padx=0, pady=(5, 0), sticky='E')
-        self.pressure_helideck_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
+        self.pressure_helideck_label.grid(row=9, column=2, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.pressure_helideck_entry = customtkinter.CTkEntry(master=self.weather_frame,
                                                               placeholder_text="777.7", width=60)
         self.pressure_helideck_entry.configure(justify='center')
-        self.pressure_helideck_entry.grid(row=9, column=3, padx=(20, 20), pady=(5, 0), sticky="w")
+        self.pressure_helideck_entry.grid(row=9, column=3, padx=(0, 0), pady=(5, 0), sticky="w")
         #
 
         # Давление на уровне моря(гПа)
-        self.pressure_sea_level_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.pressure_sea_level_label = customtkinter.CTkLabel(self.weather_frame,
                                                                text="Давление на уровне моря(гПа)",
                                                                font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.pressure_sea_level_label.grid(row=10, column=2, padx=0, pady=(5, 0), sticky='E')
-        self.pressure_sea_level_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
+        self.pressure_sea_level_label.grid(row=10, column=2, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.pressure_sea_level_entry = customtkinter.CTkEntry(master=self.weather_frame,
                                                                placeholder_text="1000", width=60)
         self.pressure_sea_level_entry.configure(justify='center')
-        self.pressure_sea_level_entry.grid(row=10, column=3, padx=(20, 20), pady=(5, 0), sticky="W")
-        # Высота преобладающих волн (м)
-        self.wave_height_label = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
-                                                        text="Высота преобладающих волн (м)",
+        self.pressure_sea_level_entry.grid(row=10, column=3, padx=(0, 0), pady=(5, 0), sticky="W")
+        # Высота преобладающих волн (cм)
+        self.wave_height_label = customtkinter.CTkLabel(self.weather_frame,
+                                                        text="Высота преобладающих волн (cм)",
                                                         font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.wave_height_label.grid(row=11, column=2, padx=0, pady=(5, 0), sticky='E')
-        self.wave_height_entry = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
-                                                        placeholder_text="00.0", width=60)
+        self.wave_height_label.grid(row=11, column=2, padx=(0, 10), pady=(5, 0), sticky='E')
+        self.wave_height_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                        placeholder_text="000", width=60)
         self.wave_height_entry.configure(justify='center')
-        self.wave_height_entry.grid(row=11, column=3, padx=(20, 20), pady=(5, 0), sticky="W")
+        self.wave_height_entry.grid(row=11, column=3, padx=(0, 0), pady=(5, 0), sticky="W")
 
         #######################
-        self.comments = customtkinter.CTkEntry(master=self.tabview_weather.tab("Текущая погода"),
+        self.comments = customtkinter.CTkEntry(master=self.weather_frame,
                                                placeholder_text="ЩЭФАП METAR UHSC 220500Z 35017G32MPS 0400 SN VV006 M10/M10 Q1006 RMK QBB180 QFE749 HSAUT000-")
-        self.comments.grid(row=14, column=0, columnspan=4, padx=(20, 0), pady=(20, 20), sticky="nsew")
-        self.checkbox_1 = customtkinter.CTkCheckBox(master=self.tabview_weather.tab("Текущая погода"),
+        self.comments.grid(row=14, column=0, columnspan=4, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.checkbox_1 = customtkinter.CTkCheckBox(master=self.weather_frame,
                                                     text='Включить комментарий в сводку')
-        self.checkbox_1.grid(row=15, column=0, pady=(10, 10), padx=20, sticky="n")
+        self.checkbox_1.grid(row=15, column=0, pady=(10, 10), padx=0, sticky="n")
 
-        self.metar_button = customtkinter.CTkButton(master=self.tabview_weather.tab("Текущая погода"),
+        self.metar_button = customtkinter.CTkButton(master=self.weather_frame,
                                                     command=self.check_user_name, text='METAR', width=900, height=35)
-        self.metar_button.grid(row=17, column=0, columnspan=4, padx=20, pady=10)
-        self.email_button = customtkinter.CTkButton(master=self.tabview_weather.tab("Текущая погода"),
+        self.metar_button.grid(row=17, column=0, columnspan=4, padx=0, pady=10)
+        self.email_button = customtkinter.CTkButton(master=self.weather_frame,
                                                     command=self.send_email, text='Отправить сводку', width=900,
                                                     height=35)
-        self.email_button.grid(row=19, column=0, padx=20, pady=10, columnspan=4)
-        self.metar_output = customtkinter.CTkLabel(self.tabview_weather.tab("Текущая погода"),
+        self.email_button.grid(row=19, column=0, padx=0, pady=10, columnspan=4)
+        self.metar_output = customtkinter.CTkLabel(self.weather_frame,
                                                    text="здесь будет код METAR",
                                                    font=customtkinter.CTkFont(size=16, weight="normal"))
-        self.metar_output.configure(justify='center')
-        self.metar_output.grid(row=18, column=0, columnspan=4, padx=(20, 0), pady=(20, 20), sticky="nsew")
-        # self.textbox_metar = customtkinter.CTkTextbox(self.tabview_weather.tab("Текущая погода"), height=0)
-        # self.textbox_metar.grid(row=20, column=0, columnspan=5, padx=(20, 0), pady=(20, 20), sticky="nsew")
-
-        # create textbox
-        # self.textbox_tab3 = customtkinter.CTkTextbox(self.tabview_weather.tab("Процедура"))
-        # self.textbox_tab3.grid(row=0, column=1, padx=(00, 0), pady=(00, 0), sticky="nsew")
+        self.metar_output.configure(justify='center', width=200)
+        self.metar_output.grid(row=18, column=0, columnspan=4, padx=(0, 0), pady=(20, 20), sticky="nsew")
 
         # Создаём фрейм для местного времени
-        self.local_time_frame = customtkinter.CTkFrame(self, width=240, corner_radius=0)
-        self.local_time_frame.grid(row=0, column=3, rowspan=4, sticky="nw")
+        self.local_time_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
+        self.local_time_frame.grid(row=0, column=2, rowspan=20, sticky="nsew")
         self.local_time_text = customtkinter.CTkLabel(self.local_time_frame, text="Местное время",
                                                       font=customtkinter.CTkFont(size=16, weight="bold"))
         self.local_time_text.grid(row=1, column=0, padx=20, pady=10)
@@ -290,38 +302,33 @@ class App(customtkinter.CTk):
         self.update_clock()  # Запускаем функцию для обновления времени
 
         # set default values
-        self.wind_entry.insert(0, 12)
-        self.windgust_entry.insert(0, 37)
-        self.visibility_entry.insert(0, 1500)
-        self.wind_dir_entry.insert(0, 250)
-        self.temperature_entry.insert(0, -21.6)
-        self.humidity_entry.insert(0, 0)
-        self.cloud_base_lower_entry.insert(0, 700)
-        self.pressure_helideck_entry.insert(0, 747.7)
-        self.pressure_sea_level_entry.insert(0, 1012.4)
-        self.wave_height_entry.insert(0, 10)
-        self.dew_point_temperature_entry.insert(0, -22.9)
+        # self.wind_entry.insert(0, 12)
+        # self.windgust_entry.insert(0, 37)
+        # self.visibility_entry.insert(0, 1500)
+        # self.wind_dir_entry.insert(0, 250)
+        # self.temperature_entry.insert(0, -21.6)
+        # self.humidity_entry.insert(0, 0)
+        # self.cloud_base_lower_entry.insert(0, 700)
+        # self.pressure_helideck_entry.insert(0, 747.7)
+        # self.pressure_sea_level_entry.insert(0, 1012.4)
+        # self.wave_height_entry.insert(0, 10)
+        # self.dew_point_temperature_entry.insert(0, -22.9)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
         self.weather_conditions_optionmenu2.set("")
         self.weather_conditions_optionmenu2.grid_remove()
         self.weather_conditions_optionmenu3.set("")
         self.weather_conditions_optionmenu3.grid_remove()
-        self.quantity_clouds_optionmenu.set("")
-        self.total_clouds_optionmenu.set("")
+        self.quantity_clouds_optionmenu.set("0")
+        self.total_clouds_optionmenu.set("0")
         self.cloud_form_optionmenu.set("")
         self.cloud_form_optionmenu2.set("")
         self.cloud_form_optionmenu3.set("")
 
-        # self.sidebar_button_3.configure(state="disabled", text="Disabled CTkButton")
+        self.history_frame.grid_remove()
+        self.about_frame.grid_remove()
+
         self.appearance_mode_optionemenu.set("Light")
         self.scaling_optionemenu.set("100%")
-        # self.textbox_tab3.insert("0.0",
-        #                          "Наставление по наблюдению за погодой\n\n" +
-        #                          "Результаты наблюдений и специальных сводок фиксируются в специальном журнале "
-        #                          "и передаются открытым текстом в установленные адреса (в случае недоступности "
-        #                          "сервиса передачи сообщений METAR). При передаче метеорологических данных в "
-        #                          "автоматическом режиме запись в журнал отменяется (фиксируются только данные об "
-        #                          "особых явлениях погоды и наличии кучево-дождевой и мощно-кучевой облачности)." * 20)
 
         self.wc_option = self.weather_conditions_optionmenu.get()
         self.wc_option2 = self.weather_conditions_optionmenu2.get()
@@ -391,6 +398,10 @@ class App(customtkinter.CTk):
     def click_metar(self):  # формирование кода метар
         self.metar_output.configure(text='проверь введённые данные')
         global dt_metar
+        clouds_metar = [self.visibility_entry.get(),
+                        self.total_clouds_optionmenu.get(),
+                        self.quantity_clouds_optionmenu.get(),
+                        self.cloud_base_lower_entry.get()]
         wc = [self.weather_conditions_optionmenu.get(),
               self.weather_conditions_optionmenu2.get(),
               self.weather_conditions_optionmenu3.get()]
@@ -405,38 +416,57 @@ class App(customtkinter.CTk):
                               self.temperature_entry.get(),
                               self.dew_point_temperature_entry.get(),
                               self.humidity_entry.get(),
-                              self.total_clouds_optionmenu.get(),
+                              clouds_metar,
                               self.quantity_clouds_optionmenu.get(),
                               self.cloud_base_lower_entry.get(),
                               self.cloud_form_optionmenu.get(),
                               self.wave_height_entry.get()
                               )
         metar_data = f'ЩЭФАП METAR UHSC {metar_all}'
-        if self.checkbox_1.get() == 1:
-            metar_data += ' ' + self.comments.get() + ' -'
-        else:
-            metar_data += ' -'
+        # if self.checkbox_1.get() == 1:
+        #     metar_data += ' ' + self.comments.get() + ' -'
+        # else:
+        #     metar_data += ' -'
         self.metar_output.configure(text=metar_data)  # #
 
     def send_email(self):
         data = self.metar_output.cget('text')
-        # self.textbox_metar.delete('1.0', 'end')
-        # self.textbox_metar.insert('end', data)
-        recipient = 'example@example.example'
+        if self.checkbox_1.get() == 1:
+            data += ' ' + self.comments.get() + ' -'
+        else:
+            data += ' -'
+        recipient = 'pogoda10@sakhugms.ru'
         subject = 'METAR'
-        mailto_link = f'mailto:{recipient}?subject={subject}&body={data}'
-        webbrowser.open(mailto_link)
+        # mailto_link = f'mailto:{recipient}?subject={subject}&body={data}'
+        # webbrowser.open(mailto_link)
+        webbrowser.open('mailto:?to=' + recipient + '&cc=' + "METAR" + '&subject=' + subject + '&body=' + data, new=1)
+
 
     def check_user_name(self):
         import socket
-        user_name = ['petrp1']
-        comp_name = ['Mybook']
+        user_name = ['petrp1', 'valery.sukhoruchkin']
+        comp_name = ['Mybook', 'YUZCHE-D-99672']
         if os.getlogin() in user_name or socket.gethostname() in comp_name:
             self.click_metar()
         else:
             metar_data = 'На работу в Гидрометеоцентр требуется метеоролог. ' \
                          'Зарплата 15 тыс. рублей, ощущается как 45 тыс.'
             self.metar_output.configure(text=metar_data)
+
+    def weather_frame_visibility(self):
+        self.history_frame.grid_remove()
+        self.about_frame.grid_remove()
+        self.weather_frame.grid()
+
+    def history_frame_visibility(self):
+        self.history_frame.grid()
+        self.about_frame.grid_remove()
+        self.weather_frame.grid_remove()
+
+    def about_frame_visibility(self):
+        self.history_frame.grid_remove()
+        self.weather_frame.grid_remove()
+        self.about_frame.grid()
 
 
 if __name__ == "__main__":
