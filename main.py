@@ -275,21 +275,27 @@ class App(customtkinter.CTk):
         self.comments.grid(row=14, column=0, columnspan=4, padx=(20, 20), pady=(20, 20), sticky="nsew")
         self.checkbox_1 = customtkinter.CTkCheckBox(master=self.home_frame,
                                                     text='Включить комментарий в сводку')
-        self.checkbox_1.grid(row=15, column=0, pady=(10, 10), padx=0, sticky="n")
+        self.checkbox_1.grid(row=15, column=0, pady=(10, 10), padx=(20, 20), sticky="n")
+        
+        self.set_report_time_button_var = customtkinter.StringVar(value="1 час")  # set initial value
+        self.set_report_time_button = customtkinter.CTkSegmentedButton(master=self.home_frame,
+                                                     values=["1 час", "30 минут", "Фактическое"],
+                                                     variable=self.set_report_time_button_var)
+        self.set_report_time_button.grid(row=15, column=2, columnspan=2, pady=(10, 10), padx=(10, 20), sticky="e")
 
         self.metar_button = customtkinter.CTkButton(master=self.home_frame,
                                                     command=self.check_user_name, text='METAR', width=900, height=35)
         self.metar_button.grid(row=17, column=0, columnspan=4, padx=0, pady=10)
-        self.email_button = customtkinter.CTkButton(master=self.home_frame,
-                                                    command=self.send_email, text='Отправить сводку', width=900,
-                                                    height=35)
-        self.email_button.grid(row=19, column=0, padx=0, pady=10, columnspan=4)
+        
         self.metar_output = customtkinter.CTkLabel(self.home_frame,
                                                    text="здесь будет код METAR",
                                                    font=customtkinter.CTkFont(size=16, weight="normal"))
         self.metar_output.configure(justify='center', width=200)
         self.metar_output.grid(row=18, column=0, columnspan=4, padx=(0, 0), pady=(20, 20), sticky="nsew")
-
+        self.email_button = customtkinter.CTkButton(master=self.home_frame,
+                                                            command=self.send_email, text='Отправить сводку', width=900,
+                                                            height=35)
+        self.email_button.grid(row=19, column=0, padx=0, pady=10, columnspan=4)
         #######################################################################################################################################
         #######################################################################################################################################
         # create second frame
