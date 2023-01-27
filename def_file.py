@@ -49,14 +49,54 @@ def date_time_cod(date_time_string):  # Дата и время передачи 
     Принимает значение даты и времени формирования сводки и возвращает код METAR'''
     date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
     minute = date_time_obj.minute
-    if 15 <= minute <= 44:
+    if 23 <= date_time_obj.hour < 24:
+        date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+    elif 15 <= minute <= 44:
         date_time_obj = date_time_obj.replace(minute=30)
     elif minute < 30:
         date_time_obj = date_time_obj.replace(minute=0)
     else:
         date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
     global date_time_for_metar
+
     date_time_for_metar = date_time_obj.strftime("%d%H%M")
+
+    return date_time_for_metar
+
+def date_db(date_time_string):  # Дата передачи сводки для базы данных
+    '''Дата передачи сводки для базы данных'''
+    date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
+    minute = date_time_obj.minute
+    if 23 <= date_time_obj.hour < 24:
+        date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+    elif 15 <= minute <= 44:
+        date_time_obj = date_time_obj.replace(minute=30)
+    elif minute < 30:
+        date_time_obj = date_time_obj.replace(minute=0)
+    else:
+        date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+    global date_time_for_metar
+
+    date_time_for_metar = date_time_obj.strftime("%d/%m/%Y")
+
+    return date_time_for_metar
+
+def time_db(date_time_string):  # Время передачи сводки для базы данных
+    '''Время передачи сводки для базы данных'''
+    date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
+    minute = date_time_obj.minute
+    if 23 <= date_time_obj.hour < 24:
+        date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+    elif 15 <= minute <= 44:
+        date_time_obj = date_time_obj.replace(minute=30)
+    elif minute < 30:
+        date_time_obj = date_time_obj.replace(minute=0)
+    else:
+        date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+    global date_time_for_metar
+
+    date_time_for_metar = date_time_obj.strftime("%H:%M")
+
     return date_time_for_metar
 
 

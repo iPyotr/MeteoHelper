@@ -7,6 +7,7 @@ import os
 from test_cod import *
 import subprocess
 import win32com.client
+from meteo_db import *
 from def_file import *
 import webbrowser
 
@@ -89,7 +90,12 @@ class App(customtkinter.CTk):
                                                          font=customtkinter.CTkFont(size=14, weight="bold"),
                                                          width=930)
         self.test_label_weather.grid(row=0, column=0, padx=(0, 10), pady=(5, 0), sticky='NSEW', columnspan=4)
-
+        # Направление ветра (град)
+        self.wind_dir_label = customtkinter.CTkLabel(self.weather_frame, text="Направление ветра (град)",
+                                                     font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.wind_dir_entry = customtkinter.CTkEntry(master=self.weather_frame,
+                                                     placeholder_text="000", width=60, text_color="#36719F",
+                                                     font=customtkinter.CTkFont(size=14, weight="bold"))
         # "Средняя скорость ветра (м/c)"
         self.wind_label = customtkinter.CTkLabel(self.weather_frame,
                                                  text="Средняя скорость ветра (м/c)",
@@ -103,12 +109,7 @@ class App(customtkinter.CTk):
         self.windgust_entry = customtkinter.CTkEntry(master=self.weather_frame,
                                                      placeholder_text="м/с", width=60, text_color="#36719F",
                                                      font=customtkinter.CTkFont(size=14, weight="bold"))
-        # Направление ветра (град)
-        self.wind_dir_label = customtkinter.CTkLabel(self.weather_frame, text="Направление ветра (град)",
-                                                     font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.wind_dir_entry = customtkinter.CTkEntry(master=self.weather_frame,
-                                                     placeholder_text="000", width=60, text_color="#36719F",
-                                                     font=customtkinter.CTkFont(size=14, weight="bold"))
+
         # Горизонтальная видимость (км)
         self.visibility_label = customtkinter.CTkLabel(self.weather_frame, text="Горизонтальная видимость (м)",
                                                        font=customtkinter.CTkFont(size=14, weight="bold"))
@@ -416,12 +417,10 @@ class App(customtkinter.CTk):
                               self.cloud_form_optionmenu.get(),
                               self.wave_height_entry.get()
                               )
-        # metar_data = f'ЩЭФАП METAR UHSC {metar_all}'
-        # if self.checkbox_1.get() == 1:
-        #     metar_data += ' ' + self.comments.get() + ' -'
-        # else:
-        #     metar_data += ' -'
         self.metar_output.configure(text=metar_all)  # #
+        print(self.metar_output.cget('text'))
+        if self.metar_output.cget('text') != 'Укажи атмосферное явление!':
+            self.db_insert()
 
     def send_email(self):
         data = self.metar_output.cget('text')
@@ -430,9 +429,8 @@ class App(customtkinter.CTk):
         else:
             data += ' -'
         recipient = ['pogoda10@sakhugms.ru']
-        # pogoda10@sakhugms.ru SELLC-LUNA-Radio-Room@sakhalin2.ru
-        cc = ['METAR', 'SELLC-LUNA-Radio-Room@sakhalin2.ru']
-        bcc = ['SELLC-LUNA-Radio-Room@sakhalin2.ru', 'SELLC-LUNA-Weather-Observer@sakhalin2.ru']
+        cc = ['METAR']
+        bcc = []
         subject = 'METAR'
         recipient_string = ";".join(recipient)
         cc_string = ";".join(cc)
@@ -440,7 +438,6 @@ class App(customtkinter.CTk):
         webbrowser.open(
             'mailto:' + recipient_string +
             '?cc=' + cc_string +
-            '&bcc=' + bcc_string +
             '&subject=' + subject +
             '&body=' + data)
 
@@ -469,6 +466,29 @@ class App(customtkinter.CTk):
         self.history_frame.grid_remove()
         self.weather_frame.grid_remove()
         self.about_frame.grid()
+
+    def db_insert(self):
+        date_utc = datetime.utcnow().strftime("%d/%m/%Y")
+        time_utc = datetime.utcnow().strftime("%H:%M")
+        insert_data(date_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))),
+                  time_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))),
+                  self.wind_dir_entry.get(),
+                  self.wind_entry.get(),
+                  self.windgust_entry.get(),
+                  self.visibility_entry.get(),
+                  self.weather_conditions_optionmenu.get(),
+                  self.temperature_entry.get(),
+                  self.dew_point_temperature_entry.get(),
+                  self.humidity_entry.get(),
+                  self.quantity_clouds_optionmenu.get(),
+                  self.cloud_base_lower_entry.get(),
+                  self.cloud_form_optionmenu.get(),
+                  self.pressure_helideck_entry.get(),
+                  self.pressure_sea_level_entry.get(),
+                  self.wave_height_entry.get(),
+                  self.comments.get(),
+                  self.metar_output.cget('text')
+                  )
 
 
 if __name__ == "__main__":
