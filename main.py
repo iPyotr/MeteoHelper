@@ -301,8 +301,7 @@ class App(customtkinter.CTk):
         self.tree = ttk.Treeview(self.second_frame)
         self.tree.grid(row=3, column=0, padx=(20, 20))
         self.tree["columns"] = ("column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8",
-                                "column9", "column10", "column11", "column12", "column13", "column14", "column15",
-                                )
+                                "column9", "column10", "column11", "column12", "column13", "column14", "column15", "column16")
         self.tree.column("#0", width=55, anchor='center')
         self.tree.column("column1", width=55, anchor='center')
         self.tree.column("column2", width=55, anchor='center')
@@ -319,6 +318,7 @@ class App(customtkinter.CTk):
         self.tree.column("column13", width=55, anchor='center')
         self.tree.column("column14", width=55, anchor='center')
         self.tree.column("column15", width=55, anchor='center')
+        self.tree.column("column16", width=55, anchor='center')
 
 
         self.tree.heading("#0", text="Дата", anchor='center')
@@ -333,10 +333,11 @@ class App(customtkinter.CTk):
         self.tree.heading("column9", text="Влажность", anchor='center')
         self.tree.heading("column10", text="Кол.облаков", anchor='center')
         self.tree.heading("column11", text="Кол.нижний", anchor='center')
-        self.tree.heading("column12", text="Тип облаков", anchor='center')
-        self.tree.heading("column13", text="Давление", anchor='center')
+        self.tree.heading("column12", text="НГО", anchor='center')
+        self.tree.heading("column13", text="Тип облаков", anchor='center')
         self.tree.heading("column14", text="Давление", anchor='center')
-        self.tree.heading("column15", text="Волнение", anchor='center')
+        self.tree.heading("column15", text="Давление", anchor='center')
+        self.tree.heading("column16", text="Волнение", anchor='center')
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -518,39 +519,43 @@ class App(customtkinter.CTk):
             self.metar_output.configure(text=metar_data)
 
     def db_insert(self):
-        wc = [self.weather_conditions_optionmenu.get(),
-              self.weather_conditions_optionmenu2.get(),
-              self.weather_conditions_optionmenu3.get()]
-        insert_data(date_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))),
-                    time_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))),
-                    int(wind_direction_cod(self.wind_dir_entry.get())),
-                    wind_speed_cod(self.wind_entry.get()),
-                    wind_gust_cod(self.windgust_entry.get()),
-                    self.visibility_entry.get(),
-                    weather_conditions_cod(wc),
-                    self.temperature_entry.get(),
-                    self.dew_point_temperature_entry.get(),
-                    self.humidity_entry.get(),
-                    self.quantity_clouds_optionmenu.get(),
-                    self.cloud_base_lower_entry.get(),
-                    self.cloud_form_optionmenu.get(),
-                    self.pressure_helideck_entry.get(),
-                    self.pressure_sea_level_entry.get(),
-                    self.wave_height_entry.get(),
-                    self.comments.get(),
-                    self.metar_output.cget('text')
-                    )
+        date_utc = date_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")))
+        time_utc = time_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")))
+        wind_direction = int(wind_direction_cod(self.wind_dir_entry.get()))
+        wind_speed = wind_speed_cod(self.wind_entry.get())
+        wind_gust = wind_gust_cod(self.windgust_entry.get())
+        visibility = self.visibility_entry.get()
+        weather_condition = weather_conditions_cod([self.weather_conditions_optionmenu.get(), 
+                             self.weather_conditions_optionmenu2.get(), 
+                             self.weather_conditions_optionmenu3.get()])
+        temperature =  self.temperature_entry.get()
+        dew_point = self.dew_point_temperature_entry.get() 
+        humidity = self.humidity_entry.get() 
+        qt_clouds = self.total_clouds_optionmenu.get()
+        qt_lower_clouds = self.quantity_clouds_optionmenu.get()
+        cloud_base = self.cloud_base_lower_entry.get()
+        clouds_type = self.cloud_form_optionmenu.get()
+        pressure_heli = self.pressure_helideck_entry.get()
+        pressure_sea_level = self.pressure_sea_level_entry.get() 
+        wave = self.wave_height_entry.get() 
+        comments = self.comments.get()
+        metar_cod = self.metar_output.cget('text')
+        
+        insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition, temperature, dew_point, humidity, qt_clouds, 
+                    qt_lower_clouds, cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments, metar_cod)
 
     def history_table(self):
         data = select_from_db()
+        print('select_from_db', data)
         for i in self.tree.get_children():
             self.tree.delete(i)
 
         for i, item in enumerate(data):
-            data = datetime.strptime(item[0], '%d/%m/%Y').strftime('%d/%m')
+            print(data[0])
+            data = datetime.strptime(item[0], "%d/%m/%Y").strftime("%d/%m")
             self.tree.insert("", i, text=data, values=(item[1], item[2], item[3], item[4], item[5], item[6], item[7],
                                                           item[8], item[9], item[10], item[11], item[12], item[13],
-                                                          item[14], item[15]))
+                                                          item[14], item[15], item[16]))
 
 
 if __name__ == "__main__":

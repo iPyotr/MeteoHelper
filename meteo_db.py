@@ -3,6 +3,35 @@ import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 
+def create_db_luna(): # Создание базы данных
+    db = sqlite3.connect('C:/Apps/luna.db')
+    c = db.cursor()
+    
+    c.execute("""CREATE TABLE meteo (
+                date_utc TEXT, 
+                time_utc TEXT, 
+                wind_direction INTEGER, 
+                wind_speed INTEGER, 
+                wind_gust INTEGER, 
+                visibility INTEGER, 
+                weather_condition TEXT, 
+                temperature REAL,
+                dew_point REAL, 
+                humidity INTEGER, 
+                qt_clouds INTEGER, 
+                qt_lower_clouds INTEGER,
+                cloud_base INTEGER, 
+                clouds_type TEXT, 
+                pressure_heli REAL, 
+                pressure_sea_level REAL, 
+                wave INTEGER,
+                comments TEXT, 
+                metar_cod TEXT
+               
+              )""")
+    db.close()
+
+
 def delete_all_data(): # Удаление всех данных из базы
     db = sqlite3.connect('C:/Apps/luna.db')
     c = db.cursor()
@@ -32,9 +61,9 @@ def check_data(date, time):
         return False
 
 
-def insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition, temperature,
-                dew_point, humidity, qt_clouds, qt_lower_clouds, clouds_type, pressure_heli, pressure_sea_level, wave,
-                comments, metar_cod):
+def insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition, temperature, 
+                dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, pressure_sea_level, 
+                wave, comments, metar_cod):
     # Checking if data already exists for the specified time and date
     if check_data(date_utc, time_utc):
         # Displaying a messagebox asking the user if they want to overwrite the data
@@ -51,10 +80,10 @@ def insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visib
             cursor.execute("""UPDATE meteo SET wind_direction = ?, wind_speed = ?, wind_gust = ?, visibility = ?, 
                                                 weather_condition = ?, temperature = ?, dew_point = ?, humidity = ?, 
                                                 qt_clouds = ?, qt_lower_clouds = ?, clouds_type = ?, pressure_heli = ?, 
-                                                pressure_sea_level = ?, wave = ?, comments = ?, metar_cod = ? 
+                                                pressure_sea_level = ?, wave = ?, comments = ?, metar_cod = ?, cloud_base = ?, 
                                                 WHERE time_utc = ? and date_utc = ?""",
                            (wind_direction, wind_speed, wind_gust, visibility, weather_condition,
-                            temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, clouds_type, pressure_heli,
+                            temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli,
                             pressure_sea_level, wave, comments, metar_cod, time_utc, date_utc))
             # Committing the changes
             conn.commit()
@@ -73,12 +102,9 @@ def insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visib
         cursor = conn.cursor()
 
         # Inserting data into the table
-        cursor.execute("INSERT INTO meteo VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?,?, ?)",
-                       (date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition,
-                        temperature,
-                        dew_point, humidity, qt_clouds, qt_lower_clouds, clouds_type, pressure_heli, pressure_sea_level,
-                        wave,
-                        comments, metar_cod))
+        cursor.execute("INSERT INTO meteo VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?)",
+                       (date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition, temperature, dew_point, humidity, 
+                        qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments, metar_cod))
 
         # Committing the changes
         conn.commit()
@@ -97,10 +123,13 @@ def select_from_db():
     c.execute("SELECT * FROM meteo")
     items = c.fetchall()
     for element in items:
-        print(element)
+        print('db-element', element)
 
     db.commit()
     db.close()
+    return items
 
-
+# create_db_luna()
+# delete_all_data()
 select_from_db()
+
