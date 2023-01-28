@@ -541,6 +541,9 @@ class App(customtkinter.CTk):
         print(self.metar_output.cget('text'))
         if self.metar_output.cget('text') != 'Укажи атмосферное явление!':
             self.db_insert(date_utc, time_utc)
+            print('dt_metar', dt_metar)
+            print('date_utc', date_utc)
+            print('time_utc', time_utc)
 
     def send_email(self):
         data = self.metar_output.cget('text')
