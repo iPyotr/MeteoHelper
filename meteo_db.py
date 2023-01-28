@@ -128,10 +128,10 @@ def select_from_db():
     
     items = c.fetchall()
     
-    for i in range(len(items)): # Форматирование даты для вывода в окне программы только даты и месяца
-        date = parse(items[i][0])
-        formatted_date = date.strftime('%d/%m')
-        items[i] = items[i][:0] + (formatted_date,) + items[i][1:]
+    # for i in range(len(items)): # Форматирование даты для вывода в окне программы только даты и месяца
+    #     date = parse(items[i][0])
+    #     formatted_date = date.strftime('%d/%m')
+    #     items[i] = items[i][:0] + (formatted_date,) + items[i][1:]
     
 
     db.commit()
