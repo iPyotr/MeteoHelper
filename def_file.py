@@ -60,7 +60,7 @@ def date_time_cod(date_time_string, set_report_time):  # Дата и время 
             date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
                 
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
-        date_for_db = date_time_obj.strftime("%d/%m/%Y")
+        date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
         return date_time_for_metar, date_for_db, time_for_db
     
@@ -75,13 +75,13 @@ def date_time_cod(date_time_string, set_report_time):  # Дата и время 
             date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
 
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
-        ddate_for_db = date_time_obj.strftime("%d/%m/%Y")
+        date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
         return date_time_for_metar, date_for_db, time_for_db
     
     elif set_report_time == "Фактическое":
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
-        date_for_db = date_time_obj.strftime("%d/%m/%Y")
+        date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
         return date_time_for_metar, date_for_db, time_for_db
 

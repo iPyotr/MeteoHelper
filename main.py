@@ -389,16 +389,16 @@ class App(customtkinter.CTk):
         ########
         # Значения по умолчанию
         # set default values
-        self.wind_entry.insert(0, 12)
-        self.windgust_entry.insert(0, 37)
-        self.visibility_entry.insert(0, 1500)
-        self.wind_dir_entry.insert(0, 250)
-        self.temperature_entry.insert(0, -21.6)
-        self.humidity_entry.insert(0, 0)
-        self.cloud_base_lower_entry.insert(0, 700)
-        self.pressure_helideck_entry.insert(0, 747.7)
-        self.pressure_sea_level_entry.insert(0, 1012.4)
-        self.dew_point_temperature_entry.insert(0, -22.9)
+        # self.wind_entry.insert(0, 12)
+        # self.windgust_entry.insert(0, 37)
+        # self.visibility_entry.insert(0, 1500)
+        # self.wind_dir_entry.insert(0, 250)
+        # self.temperature_entry.insert(0, -21.6)
+        # self.humidity_entry.insert(0, 0)
+        # self.cloud_base_lower_entry.insert(0, 700)
+        # self.pressure_helideck_entry.insert(0, 747.7)
+        # self.pressure_sea_level_entry.insert(0, 1012.4)
+        # self.dew_point_temperature_entry.insert(0, -22.9)
         #
         self.wave_height_entry.insert(0, 0)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
