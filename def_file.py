@@ -44,24 +44,48 @@ wc_dictionary = {'явлений не наблюдается': 'NSW',
                  }
 
 
-def date_time_cod(date_time_string):  # Дата и время передачи сводки
+def date_time_cod(date_time_string, set_report_time):  # Дата и время передачи сводки
     '''Дата и время передачи сводки
     Принимает значение даты и времени формирования сводки и возвращает код METAR'''
     date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
     minute = date_time_obj.minute
-    if 23 <= date_time_obj.hour < 24:
-        date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
-    elif 15 <= minute <= 44:
-        date_time_obj = date_time_obj.replace(minute=30)
-    elif minute < 30:
-        date_time_obj = date_time_obj.replace(minute=0)
-    else:
-        date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
-    global date_time_for_metar
+    global date_time_for_metar, date_time_for_db, date_time_for_db
+    ####
+    if set_report_time == "1 час": 
+        if 23 <= date_time_obj.hour < 24:
+            date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+        elif minute < 30:
+            date_time_obj = date_time_obj.replace(minute=0)
+        else:
+            date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+                
+        date_time_for_metar = date_time_obj.strftime("%d%H%M")
+        date_time_for_db = date_time_obj.strftime("%d/%m/%Y")
+        date_time_for_db = date_time_obj.strftime("%H:%M")
+        return date_time_for_metar, date_time_for_db, date_time_for_db
+    
+    elif set_report_time == "30 минут": 
+        if 23 <= date_time_obj.hour < 24:
+            date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+        elif 15 <= minute <= 44:
+            date_time_obj = date_time_obj.replace(minute=30)
+        elif minute < 30:
+            date_time_obj = date_time_obj.replace(minute=0)
+        else:
+            date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
 
-    date_time_for_metar = date_time_obj.strftime("%d%H%M")
+        date_time_for_metar = date_time_obj.strftime("%d%H%M")
+        date_time_for_db = date_time_obj.strftime("%d/%m/%Y")
+        date_time_for_db = date_time_obj.strftime("%H:%M")
+        return date_time_for_metar, date_time_for_db, date_time_for_db
+    
+    elif set_report_time == "Фактическое":
+        date_time_for_metar = date_time_obj.strftime("%d%H%M")
+        date_time_for_db = date_time_obj.strftime("%d/%m/%Y")
+        date_time_for_db = date_time_obj.strftime("%H:%M")
+        return date_time_for_metar, date_time_for_db, date_time_for_db
 
-    return date_time_for_metar
+
 
 def date_db(date_time_string):  # Дата передачи сводки для базы данных
     '''Дата передачи сводки для базы данных'''
@@ -118,6 +142,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     wave_height = wave_height_cod(wh)
     rmk = f' {str(pressure_helideck)} {str(wave_height)}'
     cbl_round = str((int(cbl) // 10) * 10).zfill(3)
+    print(date_time_for_metar)
     if int(visibility) < 8000 and weather_conditions == 'NN':
         return 'Укажи атмосферное явление!'
 

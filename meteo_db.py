@@ -82,9 +82,8 @@ def insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visib
             # Inserting data into the table
             cursor.execute("""UPDATE meteo SET wind_direction = ?, wind_speed = ?, wind_gust = ?, visibility = ?, 
                                                 weather_condition = ?, temperature = ?, dew_point = ?, humidity = ?, 
-                                                qt_clouds = ?, qt_lower_clouds = ?, clouds_type = ?, pressure_heli = ?, 
-                                                pressure_sea_level = ?, wave = ?, comments = ?, metar_cod = ?, cloud_base = ?, 
-                                                WHERE time_utc = ? and date_utc = ?""",
+                                                qt_clouds = ?, qt_lower_clouds = ?, cloud_base = ?, clouds_type = ?, pressure_heli = ?, 
+                                                pressure_sea_level = ?, wave = ?, comments = ?, metar_cod = ? WHERE time_utc = ? and date_utc = ?""",
                            (wind_direction, wind_speed, wind_gust, visibility, weather_condition,
                             temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli,
                             pressure_sea_level, wave, comments, metar_cod, time_utc, date_utc))
