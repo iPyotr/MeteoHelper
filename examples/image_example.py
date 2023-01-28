@@ -9,6 +9,7 @@ class App(customtkinter.CTk):
 
         self.title("image_example.py")
         self.geometry("700x450")
+        self.iconbitmap('img/icon.ico')
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)

@@ -16,6 +16,8 @@ class App(customtkinter.CTk):
         self.title("Meteo Helper")
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
+        self.resizable(width=False, height=False)
+        self.iconbitmap('img/icon.ico')
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)
@@ -23,11 +25,9 @@ class App(customtkinter.CTk):
 
         # load images with light and dark mode image
         image_path = os.path.join(os.path.dirname(
-            os.path.realpath(__file__)), "meteo_helper_img")
+            os.path.realpath(__file__)), "img")
         self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "offshore-rig-logo.png")),
                                                  size=(40, 40))
-        self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "large_test_image.png")),
-                                                       size=(500, 150))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
@@ -366,8 +366,9 @@ class App(customtkinter.CTk):
             row=1, column=0, padx=20, pady=10, sticky="w")
 
         self.tree = ttk.Treeview(self.second_frame, show='headings')
-        self.tree.grid(row=3, column=0, padx=(20, 20), sticky="nsew")
+        self.tree.grid(row=3, column=0, pady=(20, 20), padx=(20, 20), sticky="nsew")
         self.second_frame.grid_columnconfigure(0, weight=1, minsize=100)
+        self.second_frame.grid_rowconfigure(3, weight=1)
         self.tb_heads = ["Дата", "Время", "Направление", "Ветер", "Порыв", "Видимость", "Явления", "Темп", "Точка росы",
                          "Влажность", "Кол.облаков", "Кол.нижний", "НГО", "Тип облаков", "P вп", "Р море", "Волнение"]
         self.tree["columns"] = self.tb_heads
