@@ -2,6 +2,9 @@ from config import host_cnf, user_cnf, password_cnf, db_name_cnf
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
+import datetime
+import time
+from dateutil.parser import parse
 
 def create_db_luna(): # Создание базы данных
     db = sqlite3.connect('C:/Apps/luna.db')
@@ -120,10 +123,17 @@ def select_from_db():
     db = sqlite3.connect('C:/Apps/luna.db')
     c = db.cursor()
 
-    c.execute("SELECT * FROM meteo")
+    c.execute("""SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition, temperature, 
+                dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, pressure_sea_level, 
+                wave FROM meteo""")
+    
     items = c.fetchall()
-    for element in items:
-        print('db-element', element)
+    
+    for i in range(len(items)): # Форматирование даты для вывода в окне программы только даты и месяца
+        date = parse(items[i][0])
+        formatted_date = date.strftime('%d/%m')
+        items[i] = items[i][:0] + (formatted_date,) + items[i][1:]
+    
 
     db.commit()
     db.close()
@@ -131,5 +141,5 @@ def select_from_db():
 
 # create_db_luna()
 # delete_all_data()
-select_from_db()
+# select_from_db()
 

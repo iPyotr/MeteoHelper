@@ -304,46 +304,18 @@ class App(customtkinter.CTk):
                                                            image=self.image_icon_image, compound="right", command=self.history_table)
         self.home_frame_button_2.grid(row=1, column=0, padx=20, pady=10, sticky="w")
 
-        self.tree = ttk.Treeview(self.second_frame)
-        self.tree.grid(row=3, column=0, padx=(20, 20))
-        self.tree["columns"] = ("column1", "column2", "column3", "column4", "column5", "column6", "column7", "column8",
-                                "column9", "column10", "column11", "column12", "column13", "column14", "column15", "column16")
-        self.tree.column("#0", width=55, anchor='center')
-        self.tree.column("column1", width=55, anchor='center')
-        self.tree.column("column2", width=55, anchor='center')
-        self.tree.column("column3", width=55, anchor='center')
-        self.tree.column("column4", width=55, anchor='center')
-        self.tree.column("column5", width=55, anchor='center')
-        self.tree.column("column6", width=55, anchor='center')
-        self.tree.column("column7", width=55, anchor='center')
-        self.tree.column("column8", width=55, anchor='center')
-        self.tree.column("column9", width=55, anchor='center')
-        self.tree.column("column10", width=55, anchor='center')
-        self.tree.column("column11", width=55, anchor='center')
-        self.tree.column("column12", width=55, anchor='center')
-        self.tree.column("column13", width=55, anchor='center')
-        self.tree.column("column14", width=55, anchor='center')
-        self.tree.column("column15", width=55, anchor='center')
-        self.tree.column("column16", width=55, anchor='center')
+        self.tree = ttk.Treeview(self.second_frame, show='headings')
+        self.tree.grid(row=3, column=0, padx=(20, 20), sticky="nsew")
+        self.second_frame.grid_columnconfigure(0, weight=1, minsize=100)
+        self.tb_heads = ["Дата","Время","Направление","Ветер","Порыв","Видимость","Явления","Темп","Точка росы",
+                         "Влажность","Кол.облаков","Кол.нижний","НГО","Тип облаков","P вп","Р море","Волнение"]
+        self.tree["columns"] = self.tb_heads
+        for header in self.tb_heads:
+            self.tree.heading(header, text=header, anchor='center')
+            self.tree.column(header, anchor='center')
+            self.tree.column(header, width=50, anchor='center')
 
 
-        self.tree.heading("#0", text="Дата", anchor='center')
-        self.tree.heading("column1", text="Время", anchor='center')
-        self.tree.heading("column2", text="Направление", anchor='center')
-        self.tree.heading("column3", text="Ветер", anchor='center')
-        self.tree.heading("column4", text="Порыв", anchor='center')
-        self.tree.heading("column5", text="Видимость", anchor='center')
-        self.tree.heading("column6", text="Явления", anchor='center')
-        self.tree.heading("column7", text="Темп", anchor='center')
-        self.tree.heading("column8", text="Точка росы", anchor='center')
-        self.tree.heading("column9", text="Влажность", anchor='center')
-        self.tree.heading("column10", text="Кол.облаков", anchor='center')
-        self.tree.heading("column11", text="Кол.нижний", anchor='center')
-        self.tree.heading("column12", text="НГО", anchor='center')
-        self.tree.heading("column13", text="Тип облаков", anchor='center')
-        self.tree.heading("column14", text="Давление", anchor='center')
-        self.tree.heading("column15", text="Давление", anchor='center')
-        self.tree.heading("column16", text="Волнение", anchor='center')
 
         # create third frame
         self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -356,17 +328,18 @@ class App(customtkinter.CTk):
         ########
         ######## Значения по умолчанию
         # set default values
-        # self.wind_entry.insert(0, 12)
-        # self.windgust_entry.insert(0, 37)
-        # self.visibility_entry.insert(0, 1500)
-        # self.wind_dir_entry.insert(0, 250)
-        # self.temperature_entry.insert(0, -21.6)
-        # self.humidity_entry.insert(0, 0)
-        # self.cloud_base_lower_entry.insert(0, 700)
-        # self.pressure_helideck_entry.insert(0, 747.7)
-        # self.pressure_sea_level_entry.insert(0, 1012.4)
+        self.wind_entry.insert(0, 12)
+        self.windgust_entry.insert(0, 37)
+        self.visibility_entry.insert(0, 1500)
+        self.wind_dir_entry.insert(0, 250)
+        self.temperature_entry.insert(0, -21.6)
+        self.humidity_entry.insert(0, 0)
+        self.cloud_base_lower_entry.insert(0, 700)
+        self.pressure_helideck_entry.insert(0, 747.7)
+        self.pressure_sea_level_entry.insert(0, 1012.4)
+        self.dew_point_temperature_entry.insert(0, -22.9)
+        #
         self.wave_height_entry.insert(0, 0)
-        # self.dew_point_temperature_entry.insert(0, -22.9)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
         self.weather_conditions_optionmenu2.set("")
         self.weather_conditions_optionmenu2.grid_remove()
@@ -552,16 +525,15 @@ class App(customtkinter.CTk):
 
     def history_table(self):
         data = select_from_db()
-        print('select_from_db', data)
+        
         for i in self.tree.get_children():
             self.tree.delete(i)
+        
+        for row in data:
+            print(row)
+            self.tree.insert("", 'end', values=row)
+        
 
-        for i, item in enumerate(data):
-            print(data[0])
-            data = datetime.strptime(item[0], "%d/%m/%Y").strftime("%d/%m")
-            self.tree.insert("", i, text=data, values=(item[1], item[2], item[3], item[4], item[5], item[6], item[7],
-                                                          item[8], item[9], item[10], item[11], item[12], item[13],
-                                                          item[14], item[15], item[16]))
 
 
 if __name__ == "__main__":
