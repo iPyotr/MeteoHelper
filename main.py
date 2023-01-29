@@ -519,7 +519,7 @@ class App(customtkinter.CTk):
         wc = [self.weather_conditions_optionmenu.get(),
               self.weather_conditions_optionmenu2.get(),
               self.weather_conditions_optionmenu3.get()]
-        dt_metar, date_utc, time_utc  = date_time_cod(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")), self.set_report_time_button_var.get())
+        dt_metar, date_utc, time_utc  = date_time_cod(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")), str(time.strftime("%Y-%m-%d %H:%M:%S")), self.set_report_time_button_var.get())
         
         metar_all = metar_cod(self.wind_entry.get(),
                               self.windgust_entry.get(),

@@ -47,7 +47,7 @@ wc_dictionary = {'явлений не наблюдается': 'NSW',
                  }
 
 
-def date_time_cod(date_time_string, set_report_time):  # Дата и время передачи сводки
+def date_time_cod(date_time_string, local_date_time_string, set_report_time):  # Дата и время передачи сводки
     '''Дата и время передачи сводки
     Принимает значение даты и времени формирования сводки и возвращает код METAR'''
     date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
