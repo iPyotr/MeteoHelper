@@ -30,6 +30,8 @@ class App(customtkinter.CTk):
                                                  size=(40, 40))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
+        self.window_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "icon.ico")),
+                                                        size=(20, 20))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
                                                  dark_image=Image.open(os.path.join(
                                                      image_path, "home_light.png")),
@@ -361,7 +363,8 @@ class App(customtkinter.CTk):
         self.second_frame = customtkinter.CTkFrame(
             self, corner_radius=0, fg_color="transparent")
         self.home_frame_button_2 = customtkinter.CTkButton(self.second_frame, text="Получить данные",
-                                                           image=self.image_icon_image, compound="right", command=self.history_table)
+                                                           image=self.image_icon_image, compound="right",
+                                                           command=self.history_table)
         self.home_frame_button_2.grid(
             row=1, column=0, padx=20, pady=10, sticky="w")
 
@@ -389,16 +392,16 @@ class App(customtkinter.CTk):
         ########
         # Значения по умолчанию
         # set default values
-        # self.wind_entry.insert(0, 12)
-        # self.windgust_entry.insert(0, 37)
-        # self.visibility_entry.insert(0, 1500)
-        # self.wind_dir_entry.insert(0, 250)
-        # self.temperature_entry.insert(0, -21.6)
-        # self.humidity_entry.insert(0, 0)
-        # self.cloud_base_lower_entry.insert(0, 700)
-        # self.pressure_helideck_entry.insert(0, 747.7)
-        # self.pressure_sea_level_entry.insert(0, 1012.4)
-        # self.dew_point_temperature_entry.insert(0, -22.9)
+        self.wind_entry.insert(0, 12)
+        self.windgust_entry.insert(0, 37)
+        self.visibility_entry.insert(0, 1500)
+        self.wind_dir_entry.insert(0, 250)
+        self.temperature_entry.insert(0, -21.6)
+        self.humidity_entry.insert(0, 0)
+        self.cloud_base_lower_entry.insert(0, 700)
+        self.pressure_helideck_entry.insert(0, 747.7)
+        self.pressure_sea_level_entry.insert(0, 1012.4)
+        self.dew_point_temperature_entry.insert(0, -22.9)
         #
         self.wave_height_entry.insert(0, 0)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
@@ -464,7 +467,7 @@ class App(customtkinter.CTk):
         e = (6.11 * 10 ** ((7.5 * Td) / (237.7 + Td))) * \
             (10 ** (2) / (T + 273.15))
         e_s = (6.11 * 10 ** ((7.5 * T) / (237.7 + T))) * \
-            (10 ** (2) / (T + 273.15))
+              (10 ** (2) / (T + 273.15))
         RH = int((e / e_s) * 100)
         self.humidity_entry.delete(0, 'end')
         self.humidity_entry.insert('end', RH)
@@ -519,8 +522,11 @@ class App(customtkinter.CTk):
         wc = [self.weather_conditions_optionmenu.get(),
               self.weather_conditions_optionmenu2.get(),
               self.weather_conditions_optionmenu3.get()]
-        dt_metar, date_utc, time_utc  = date_time_cod(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")), str(time.strftime("%Y-%m-%d %H:%M:%S")), self.set_report_time_button_var.get())
-        
+        dt_metar, date_utc, time_utc, local_date_for_db, local_time_for_db = date_time_cod(
+            str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")),
+            str(time.strftime("%Y/%m/%d %H:%M:%S")),
+            self.set_report_time_button_var.get())
+
         metar_all = metar_cod(self.wind_entry.get(),
                               self.windgust_entry.get(),
                               self.wind_dir_entry.get(),
@@ -540,7 +546,7 @@ class App(customtkinter.CTk):
         self.metar_output.configure(text=metar_all)  # #
         print(self.metar_output.cget('text'))
         if self.metar_output.cget('text') != 'Укажи атмосферное явление!':
-            self.db_insert(date_utc, time_utc)
+            self.db_insert(date_utc, time_utc, local_date_for_db, local_time_for_db)
             print('dt_metar', dt_metar)
             print('date_utc', date_utc)
             print('time_utc', time_utc)
@@ -575,9 +581,7 @@ class App(customtkinter.CTk):
                          'Зарплата 15 тыс. рублей, ощущается как 45 тыс.'
             self.metar_output.configure(text=metar_data)
 
-    def db_insert(self, date_utc, time_utc):
-        # date_utc = date_time_for_db # date_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")))
-        # time_utc = date_time_for_db # time_db(str(datetime.utcnow().strftime("%d/%m/%Y %H:%M")))
+    def db_insert(self, date_utc, time_utc, local_date_for_db, local_time_for_db):
         wind_direction = int(wind_direction_cod(self.wind_dir_entry.get()))
         wind_speed = wind_speed_cod(self.wind_entry.get())
         wind_gust = wind_gust_cod(self.windgust_entry.get())
@@ -598,8 +602,9 @@ class App(customtkinter.CTk):
         comments = self.comments.get()
         metar_cod = self.metar_output.cget('text')
 
-        insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition, temperature, dew_point, humidity, qt_clouds,
-                    qt_lower_clouds, cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments, metar_cod)
+        insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition,
+                    temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type,
+                    pressure_heli, pressure_sea_level, wave, comments, metar_cod)
 
     def history_table(self):
         data = select_from_db()

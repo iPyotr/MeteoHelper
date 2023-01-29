@@ -4,8 +4,9 @@ import math
 clouds_type = ['перистые', 'перисто-кучевые', 'перисто-слоистые', 'высококучевые', 'высокослоистые',
                'слоисто-кучевые', 'слоистые', 'слоисто-дождевые', 'кучевые', 'кучево-дождевые', 'разорванно-дождевые']
 
-clouds_type_dictionary = {"перистые":"Сi", "перисто-кучевые":"Cc","перисто-слоистые":"Cs", "высококучевые":"Ac", "высокослоистые":"As", "слоисто-кучевые":"Sc",
-                        "слоистые":"St", "слоисто-дождевые":"Ns", "кучевые":"Cu", "кучево-дождевые":"Cb", "разорванно-дождевые":"Frnb"}
+clouds_type_dictionary = {"перистые": "Сi", "перисто-кучевые": "Cc", "перисто-слоистые": "Cs", "высококучевые": "Ac",
+                          "высокослоистые": "As", "слоисто-кучевые": "Sc", "слоистые": "St", "слоисто-дождевые": "Ns",
+                          "кучевые": "Cu", "кучево-дождевые": "Cb", "разорванно-дождевые": "Frnb"}
 
 weather_conditions_types = ['явлений не наблюдается',
                             'дымка',
@@ -51,43 +52,58 @@ def date_time_cod(date_time_string, local_date_time_string, set_report_time):  #
     '''Дата и время передачи сводки
     Принимает значение даты и времени формирования сводки и возвращает код METAR'''
     date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
+    local_date_time_obj = datetime.strptime(local_date_time_string, "%Y/%m/%d %H:%M:%S")
     minute = date_time_obj.minute
-    global date_time_for_metar, date_time_for_db, date_time_for_db
+    local_minute = local_date_time_obj.minute
+    global date_time_for_metar, date_time_for_db, date_time_for_db, local_date_for_db, local_time_for_db
     ####
-    if set_report_time == "1 час": 
+    if set_report_time == "1 час":
         if 23 <= date_time_obj.hour < 24:
             date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+            local_date_time_obj = local_date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
         elif minute < 30:
             date_time_obj = date_time_obj.replace(minute=0)
+            local_date_time_obj = local_date_time_obj.replace(minute=0)
         else:
             date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
-                
-        date_time_for_metar = date_time_obj.strftime("%d%H%M")
-        date_for_db = date_time_obj.strftime("%d.%m.%Y")
-        time_for_db = date_time_obj.strftime("%H:%M")
-        return date_time_for_metar, date_for_db, time_for_db
-    
-    elif set_report_time == "30 минут": 
-        if 23 <= date_time_obj.hour < 24:
-            date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
-        elif 15 <= minute <= 44:
-            date_time_obj = date_time_obj.replace(minute=30)
-        elif minute < 30:
-            date_time_obj = date_time_obj.replace(minute=0)
-        else:
-            date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+            local_date_time_obj = local_date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
 
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
         date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
-        return date_time_for_metar, date_for_db, time_for_db
-    
+        local_date_for_db = local_date_time_obj.strftime("%d.%m.%Y")
+        local_time_for_db = local_date_time_obj.strftime("%H:%M")
+        print(date_time_for_metar, date_for_db, time_for_db, local_date_for_db, local_time_for_db)
+        return date_time_for_metar, date_for_db, time_for_db, local_date_for_db, local_time_for_db
+
+    elif set_report_time == "30 минут":
+        if 23 <= date_time_obj.hour < 24:
+            date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+            local_date_time_obj = local_date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
+        elif 15 <= minute <= 44:
+            date_time_obj = date_time_obj.replace(minute=30)
+            local_date_time_obj = local_date_time_obj.replace(minute=30)
+        elif minute < 30:
+            date_time_obj = date_time_obj.replace(minute=0)
+            local_date_time_obj = local_date_time_obj.replace(minute=0)
+        else:
+            date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+            local_date_time_obj = local_date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+
+        date_time_for_metar = date_time_obj.strftime("%d%H%M")
+        date_for_db = date_time_obj.strftime("%d.%m.%Y")
+        time_for_db = date_time_obj.strftime("%H:%M")
+        local_date_for_db = local_date_time_obj.strftime("%d.%m.%Y")
+        local_time_for_db = local_date_time_obj.strftime("%H:%M")
+        return date_time_for_metar, date_for_db, time_for_db, local_date_for_db, local_time_for_db
+
     elif set_report_time == "Фактическое":
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
         date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
-        return date_time_for_metar, date_for_db, time_for_db
-
+        local_date_for_db = local_date_time_obj.strftime("%d.%m.%Y")
+        local_time_for_db = local_date_time_obj.strftime("%H:%M")
+        return date_time_for_metar, date_for_db, time_for_db, local_date_for_db, local_time_for_db
 
 
 def date_db(date_time_string):  # Дата передачи сводки для базы данных
@@ -107,6 +123,7 @@ def date_db(date_time_string):  # Дата передачи сводки для 
     date_time_for_metar = date_time_obj.strftime("%d/%m/%Y")
 
     return date_time_for_metar
+
 
 def time_db(date_time_string):  # Время передачи сводки для базы данных
     '''Время передачи сводки для базы данных'''
