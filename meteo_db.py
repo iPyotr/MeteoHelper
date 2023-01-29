@@ -5,6 +5,9 @@ from tkinter import messagebox
 import datetime
 import time
 from dateutil.parser import parse
+import pandas as pd
+from datetime import datetime
+
 
 def create_db_luna(): # Создание базы данных
     db = sqlite3.connect('C:/Apps/luna.db')
@@ -38,7 +41,7 @@ def create_db_luna(): # Создание базы данных
 def delete_all_data(): # Удаление всех данных из базы
     db = sqlite3.connect('C:/Apps/luna.db')
     c = db.cursor()
-    c.execute(" DELETE FROM meteo# ")
+    c.execute(" DELETE FROM meteo ")
     db.commit()
     db.close()
 
@@ -119,6 +122,9 @@ def insert_data(date_utc, time_utc, wind_direction, wind_speed, wind_gust, visib
 
 
 def select_from_db():
+    
+    
+
     db = sqlite3.connect('C:/Apps/luna.db')
     c = db.cursor()
 
@@ -138,7 +144,27 @@ def select_from_db():
     db.close()
     return items
 
+def read_csv():
+    """Функция считывает данные из файла csv"""
+    
+    df =  pd.read_excel('C:/Apps/2022.xlsx')
+    
+    df['date_utc'] = pd.to_datetime(df['date_utc'], format='%Y-%m-%d').dt.strftime('%d.%m.%Y')
+    df['time_utc'] = pd.to_datetime(df['time_utc'], format='%H:%M:%S').dt.strftime('%H:%M')
+
+
+    insert_additional_data(df)
+
+
+
+def insert_additional_data(data):
+    """Функция добавляет данные в базу данных"""
+    conn = sqlite3.connect('C:/Apps/luna.db')
+    data.to_sql('meteo', conn, if_exists='append', index=False)
+    conn.close()
+
+
 # create_db_luna()
 # delete_all_data()
 # select_from_db()
-
+# read_csv()
