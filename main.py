@@ -188,7 +188,7 @@ class App(customtkinter.CTk):
                                                          font=customtkinter.CTkFont(size=14, weight="bold"))
         self.total_clouds_optionmenu = customtkinter.CTkOptionMenu(self.home_frame, dynamic_resizing=False,
                                                                    values=[
-                                                                       '0', '1', '2', '4', '5', '6', '7', '8'],
+                                                                       '0', '1', '2', '3', '4', '5', '6', '7', '8'],
                                                                    width=87)
         # Количество нижнего яруса (октанты)
         self.quantity_clouds_label = customtkinter.CTkLabel(self.home_frame,
@@ -196,7 +196,7 @@ class App(customtkinter.CTk):
                                                             font=customtkinter.CTkFont(size=14, weight="bold"))
         self.quantity_clouds_optionmenu = customtkinter.CTkOptionMenu(self.home_frame, dynamic_resizing=False,
                                                                       values=[
-                                                                          '0', '1', '2', '4', '5', '6', '7', '8'],
+                                                                          '0', '1', '2', '3', '4', '5', '6', '7', '8'],
                                                                       width=87)
         # Высота НГО (м)
         self.cloud_base_lower_label = customtkinter.CTkLabel(self.home_frame, text="Высота НГО (м)",
