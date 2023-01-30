@@ -210,12 +210,21 @@ class App(customtkinter.CTk):
         # Форма облачности
         self.cloud_form_label = customtkinter.CTkLabel(self.home_frame, text="Форма облачности",
                                                        font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.cloud_form_optionmenu_var = customtkinter.StringVar(value="")
         self.cloud_form_optionmenu = customtkinter.CTkOptionMenu(self.home_frame, dynamic_resizing=False,
-                                                                 values=clouds_type, width=87)
+                                                                 values=clouds_type, width=87,
+                                                                 command=self.change_state_cloud2,
+                                                                 variable=self.cloud_form_optionmenu_var)
+        self.cloud_form_optionmenu2_var = customtkinter.StringVar(value="")
         self.cloud_form_optionmenu2 = customtkinter.CTkOptionMenu(self.home_frame, dynamic_resizing=False,
-                                                                  values=clouds_type, width=87)
+                                                                  values=clouds_type, width=87,
+                                                                  command=self.change_state_cloud3,
+                                                                  variable=self.cloud_form_optionmenu2_var)
+        self.cloud_form_optionmenu3_var = customtkinter.StringVar(value="")
         self.cloud_form_optionmenu3 = customtkinter.CTkOptionMenu(self.home_frame, dynamic_resizing=False,
-                                                                  values=clouds_type, width=87)
+                                                                  values=clouds_type, width=87,
+                                                                  command=self.change_state_cloud3,
+                                                                  variable=self.cloud_form_optionmenu3_var)
         # Давление на уровне вертолетной площадки (мм.рт.ст.)
         self.pressure_helideck_label = customtkinter.CTkLabel(self.home_frame,
                                                               text="Давление на уровне вертолетной площадки\n(мм.рт.ст.)",
@@ -441,9 +450,11 @@ class App(customtkinter.CTk):
         self.weather_conditions_optionmenu2.grid_remove()
         self.weather_conditions_optionmenu3.set("")
         self.weather_conditions_optionmenu3.grid_remove()
+        self.cloud_form_optionmenu2.grid_remove()
+        self.cloud_form_optionmenu3.grid_remove()
         self.quantity_clouds_optionmenu.set("0")
         self.total_clouds_optionmenu.set("0")
-        self.cloud_form_optionmenu.set("")
+        self.cloud_form_optionmenu.set("Облачность отсутствует")
         self.cloud_form_optionmenu2.set("")
         self.cloud_form_optionmenu3.set("")
         ######
@@ -533,6 +544,31 @@ class App(customtkinter.CTk):
         if self.optionmenu_var3.get() == "явлений не наблюдается":
             self.weather_conditions_optionmenu3.set("")
             self.weather_conditions_optionmenu3.grid_remove()
+
+    def change_state_cloud2(self, event):
+        if self.cloud_form_optionmenu_var.get() == "Облачность отсутствует":
+            self.cloud_form_optionmenu2.set("")
+            self.cloud_form_optionmenu2.grid_remove()
+            self.cloud_form_optionmenu3.set("")
+            self.cloud_form_optionmenu3.grid_remove()
+        elif self.cloud_form_optionmenu_var.get() != "Облачность отсутствует":
+            self.cloud_form_optionmenu2.grid()
+
+    def change_state_cloud3(self, event):
+        print('1', self.cloud_form_optionmenu_var.get() , '2', self.cloud_form_optionmenu2_var.get(), self.cloud_form_optionmenu3_var.get())
+        if self.cloud_form_optionmenu2_var.get() == "Облачность отсутствует":
+            self.cloud_form_optionmenu2.set("")
+            self.cloud_form_optionmenu2.grid_remove()
+            self.cloud_form_optionmenu3.set("")
+            self.cloud_form_optionmenu3.grid_remove()
+
+        elif self.cloud_form_optionmenu2_var.get() != "Облачность отсутствует":
+            print(self.cloud_form_optionmenu2_var.get())
+            self.cloud_form_optionmenu3.grid()
+
+        if self.cloud_form_optionmenu3_var.get() == "Облачность отсутствует":
+            self.cloud_form_optionmenu3.set("")
+            self.cloud_form_optionmenu3.grid_remove()
 
     def update_clock(self):
         current_time = time.strftime("%H:%M:%S")
@@ -636,17 +672,18 @@ class App(customtkinter.CTk):
         qt_clouds = self.total_clouds_optionmenu.get()
         qt_lower_clouds = self.quantity_clouds_optionmenu.get()
         cloud_base = self.cloud_base_lower_entry.get()
-        clouds_type = self.cloud_form_optionmenu.get()
+        clouds_type_cod = clouds_form(self.cloud_form_optionmenu.get(),
+                                      self.cloud_form_optionmenu2.get(),
+                                      self.cloud_form_optionmenu3.get())
         pressure_heli = self.pressure_helideck_entry.get()
         pressure_sea_level = self.pressure_sea_level_entry.get()
         wave = self.wave_height_entry.get()
         comments = self.comments.get()
-        metar_cod = self.metar_output.cget('text')
+        metar_cod_cod = self.metar_output.cget('text')
 
         insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust,
-                    visibility, weather_condition,
-                    temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type,
-                    pressure_heli, pressure_sea_level, wave, comments, metar_cod)
+                    visibility, weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds,
+                    cloud_base, clouds_type_cod, pressure_heli, pressure_sea_level, wave, comments, metar_cod_cod)
 
     def history_table(self):
         data = select_from_db(self.day_history_OptionMenu.get(),

@@ -1,12 +1,33 @@
 from datetime import datetime, timedelta
 import math
+from typing import List, Any
 
-clouds_type = ['перистые', 'перисто-кучевые', 'перисто-слоистые', 'высококучевые', 'высокослоистые',
-               'слоисто-кучевые', 'слоистые', 'слоисто-дождевые', 'кучевые', 'кучево-дождевые', 'разорванно-дождевые']
+clouds_type: list[str | Any] = ['перистые',
+                                'перисто-кучевые',
+                                'перисто-слоистые',
+                                'высококучевые',
+                                'высокослоистые',
+                                'слоисто-кучевые',
+                                'слоистые',
+                                'слоисто-дождевые',
+                                'кучевые',
+                                'кучево-дождевые',
+                                'разорванно-дождевые',
+                                'Облачность отсутствует']
 
-clouds_type_dictionary = {"перистые": "Сi", "перисто-кучевые": "Cc", "перисто-слоистые": "Cs", "высококучевые": "Ac",
-                          "высокослоистые": "As", "слоисто-кучевые": "Sc", "слоистые": "St", "слоисто-дождевые": "Ns",
-                          "кучевые": "Cu", "кучево-дождевые": "Cb", "разорванно-дождевые": "Frnb"}
+clouds_type_dictionary = {"перистые": "Сi",
+                          "перисто-кучевые": "Cc",
+                          "перисто-слоистые": "Cs",
+                          "высококучевые": "Ac",
+                          "высокослоистые": "As",
+                          "слоисто-кучевые": "Sc",
+                          "слоистые": "St",
+                          "слоисто-дождевые": "Ns",
+                          "кучевые": "Cu",
+                          "кучево-дождевые": "Cb",
+                          "разорванно-дождевые": "Frnb",
+                          '': ' '
+                          }
 
 weather_conditions_types = ['явлений не наблюдается',
                             'дымка',
@@ -158,7 +179,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     total_clouds = total_clouds_cod(tc)
     quantity_clouds = quantity_clouds_cod(qc)
     cloud_base_lower = cloud_base_lower_cod(cbl)
-    cloud_form = cloud_form_cod(cf)
+    cloud_form = clouds_form(cf, cf, cf)
     wave_height = wave_height_cod(wh)
     rmk = f' {str(pressure_helideck)} {str(wave_height)}'
     cbl_round = str((int(cbl) // 10) * 10).zfill(3)
@@ -352,20 +373,13 @@ def cloud_base_lower_cod(data):  # Высота НГО (м)
     pass
 
 
-def cloud_form_cod(data):  # Форма облачности
-    ''' Форма облачности
-    Принимает значение формы облаков и возвращает код METAR'''
-    cloud_forms = {'Cb': 'Кучево дождевые',
-                   'Сu': 'кучевые плоские',
-                   'Ns': 'слоисто-дождевые',
-                   'Frnb': 'разорванно-дождевые',
-                   'St': 'слоистые',
-                   'Sc': 'слоисто-кучевые',
-                   'As': 'высокослоистые',
-                   'Ас': 'высококучевые',
-                   'Cc': 'пересто-кучевые',
-                   'Сi ': 'перистые'}
-    pass
+def clouds_form(cf1, cf2, cf3):
+    cf_all = []
+    if cf1 == '':
+        return 'SKC'
+    else:
+        cf_all = clouds_type_dictionary[cf1] + " " + clouds_type_dictionary[cf2] + " " + clouds_type_dictionary[cf3]
+    return cf_all.strip()
 
 
 def wave_height_cod(data):  # Высота преобладающих волн (м)
