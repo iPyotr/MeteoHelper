@@ -7,6 +7,7 @@ import webbrowser
 import time
 from tkinter import ttk
 from datetime import datetime
+from tkcalendar import *
 
 
 class App(customtkinter.CTk):
@@ -14,10 +15,10 @@ class App(customtkinter.CTk):
         super().__init__()
 
         self.title("Meteo Helper")
+        self.iconbitmap('img/icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
         self.resizable(width=False, height=False)
-        self.iconbitmap('img/icon.ico')
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)
@@ -362,11 +363,42 @@ class App(customtkinter.CTk):
         # create second frame
         self.second_frame = customtkinter.CTkFrame(
             self, corner_radius=0, fg_color="transparent")
-        self.home_frame_button_2 = customtkinter.CTkButton(self.second_frame, text="Получить данные",
+        self.history_date_frame = customtkinter.CTkFrame(self.second_frame, corner_radius=0, fg_color="transparent")
+        self.history_date_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+
+        self.home_frame_button_2 = customtkinter.CTkButton(self.history_date_frame, text="Получить данные",
                                                            image=self.image_icon_image, compound="right",
                                                            command=self.history_table)
-        self.home_frame_button_2.grid(
-            row=1, column=0, padx=20, pady=10, sticky="w")
+        self.home_frame_button_2.grid(row=1, column=0, padx=20, pady=0, sticky="w")
+
+        self.day_history_OptionMenu = customtkinter.CTkOptionMenu(self.history_date_frame, dynamic_resizing=False,
+                                                                  values=['01', '02', '03', '04', '05', '06', '07',
+                                                                          '08', '09',
+                                                                          '10', '11', '12', '13', '14', '15', '16',
+                                                                          '17', '18',
+                                                                          '19', '20', '21', '22', '23', '24', '25',
+                                                                          '26', '27',
+                                                                          '28', '29', '30', '31'], width=87)
+        self.month_history_OptionMenu = customtkinter.CTkOptionMenu(self.history_date_frame, dynamic_resizing=False,
+                                                                    values=['01', '02', '03', '04', '05', '06', '07',
+                                                                            '08', '09',
+                                                                            '10', '11', '12'], width=87)
+        self.year_history_OptionMenu = customtkinter.CTkOptionMenu(self.history_date_frame, dynamic_resizing=False,
+                                                                   values=['2023', '2022'], width=87)
+        self.day_history_label = customtkinter.CTkLabel(self.history_date_frame, text="День",
+                                                        font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.month_history_label = customtkinter.CTkLabel(self.history_date_frame, text="Месяц",
+                                                          font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.year_history_label = customtkinter.CTkLabel(self.history_date_frame, text="Год",
+                                                         font=customtkinter.CTkFont(size=14, weight="bold"))
+
+        self.day_history_OptionMenu.grid(row=1, column=1, padx=10, pady=0, sticky="w")
+        self.month_history_OptionMenu.grid(row=1, column=2, padx=10, pady=0, sticky="w")
+        self.year_history_OptionMenu.grid(row=1, column=3, padx=10, pady=0, sticky="w")
+
+        self.day_history_label.grid(row=0, column=1, padx=10, pady=0, sticky="ew")
+        self.month_history_label.grid(row=0, column=2, padx=10, pady=0, sticky="ew")
+        self.year_history_label.grid(row=0, column=3, padx=10, pady=0, sticky="ew")
 
         self.tree = ttk.Treeview(self.second_frame, show='headings')
         self.tree.grid(row=3, column=0, pady=(20, 20), padx=(20, 20), sticky="nsew")
@@ -433,12 +465,21 @@ class App(customtkinter.CTk):
             self.home_frame.grid_forget()
         if name == "frame_2":
             self.second_frame.grid(row=0, column=1, sticky="nsew")
+            self.date_for_history_table()
         else:
             self.second_frame.grid_forget()
         if name == "frame_3":
             self.third_frame.grid(row=0, column=1, sticky="nsew")
         else:
             self.third_frame.grid_forget()
+
+    def date_for_history_table(self):
+        current_date = time.strftime("%d")
+        current_month = time.strftime("%m")
+        current_year = time.strftime("%Y")
+        self.day_history_OptionMenu.set(current_date)
+        self.month_history_OptionMenu.set(current_month)
+        self.year_history_OptionMenu.set(current_year)
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -602,12 +643,15 @@ class App(customtkinter.CTk):
         comments = self.comments.get()
         metar_cod = self.metar_output.cget('text')
 
-        insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition,
+        insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust,
+                    visibility, weather_condition,
                     temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type,
                     pressure_heli, pressure_sea_level, wave, comments, metar_cod)
 
     def history_table(self):
-        data = select_from_db()
+        data = select_from_db(self.day_history_OptionMenu.get(),
+                              self.month_history_OptionMenu.get(),
+                              self.year_history_OptionMenu.get())
 
         for i in self.tree.get_children():
             self.tree.delete(i)
