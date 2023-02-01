@@ -601,7 +601,8 @@ class App(customtkinter.CTk):
         datetime_utc = str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))
         set_report_time = self.set_report_time_button_var.get()
         local_datetime = str(time.strftime("%Y/%m/%d %H:%M:%S"))
-        dt_metar, date_utc, time_utc = date_time_cod(datetime_utc, set_report_time)
+        # dt_metar, date_utc, time_utc = date_time_cod(datetime_utc, set_report_time)
+        dt_metar, date_utc, time_utc = date_time_cod('03/02/2023 23:44', set_report_time)
         local_date_for_db, local_time_for_db = local_date_time_cod(local_datetime, set_report_time)
 
         metar_all = metar_cod(self.wind_entry.get(),

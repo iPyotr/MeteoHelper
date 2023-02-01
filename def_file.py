@@ -78,26 +78,28 @@ def date_time_cod(date_time_string, set_report_time):  # Дата и время 
     global date_time_for_metar, date_time_for_db, date_time_for_db
     ####
     if set_report_time == "1 час":
-        if 23 <= date_time_obj.hour < 24:
-            date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
-        elif minute < 30:
+        if minute < 30:
             date_time_obj = date_time_obj.replace(minute=0)
+        elif date_time_obj.hour == 23 and date_time_obj.minute >= 30:
+            date_time_obj = date_time_obj.replace(hour=0, minute=0) + timedelta(days=1)
         else:
             date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
         date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
         return date_time_for_metar, date_for_db, time_for_db
 
     elif set_report_time == "30 минут":
-        if 23 <= date_time_obj.hour < 24:
-            date_time_obj = date_time_obj.replace(hour=0, minute=0, day=date_time_obj.day + 1)
-        elif 15 <= minute <= 44:
+        if 15 <= minute <= 44:
             date_time_obj = date_time_obj.replace(minute=30)
         elif minute < 30:
             date_time_obj = date_time_obj.replace(minute=0)
+        elif date_time_obj.hour == 23 and date_time_obj.minute > 44:
+            date_time_obj = date_time_obj.replace(hour=0, minute=0) + timedelta(days=1)
         else:
             date_time_obj = date_time_obj.replace(minute=0, hour=date_time_obj.hour + 1)
+
         date_time_for_metar = date_time_obj.strftime("%d%H%M")
         date_for_db = date_time_obj.strftime("%d.%m.%Y")
         time_for_db = date_time_obj.strftime("%H:%M")
@@ -110,34 +112,34 @@ def date_time_cod(date_time_string, set_report_time):  # Дата и время 
         return date_time_for_metar, date_for_db, time_for_db
 
 
-def local_date_time_cod(local_date_time_string, set_report_time):  # Дата и время передачи сводки
+def local_date_time_cod(date_time_string, set_report_time):  # Дата и время передачи сводки
     '''Дата и время передачи сводки в формате местного времени
     Принимает значение даты и времени формирования сводки и возвращает дату и время'''
 
-    local_date_time_obj = datetime.strptime(local_date_time_string, "%Y/%m/%d %H:%M:%S")
-    local_minute = local_date_time_obj.minute
-    global local_date_for_db, local_time_for_db
+    local_date_time_obj = datetime.strptime(date_time_string, "%Y/%m/%d %H:%M:%S")
+    minute = local_date_time_obj.minute
     ####
     if set_report_time == "1 час":
-        if 23 <= local_date_time_obj.hour < 24:
-            local_date_time_obj = local_date_time_obj.replace(hour=0, minute=0, day=local_date_time_obj.day + 1)
-        elif local_minute < 30:
+        if minute < 30:
             local_date_time_obj = local_date_time_obj.replace(minute=0)
+        elif local_date_time_obj.hour == 23 and local_date_time_obj.minute >= 30:
+            local_date_time_obj = local_date_time_obj.replace(hour=0, minute=0) + timedelta(days=1)
         else:
             local_date_time_obj = local_date_time_obj.replace(minute=0, hour=local_date_time_obj.hour + 1)
+
         local_date_for_db = local_date_time_obj.strftime("%d.%m.%Y")
         local_time_for_db = local_date_time_obj.strftime("%H:%M")
         return local_date_for_db, local_time_for_db
 
     elif set_report_time == "30 минут":
-        if 23 <= local_date_time_obj.hour < 24:
-            local_date_time_obj = local_date_time_obj.replace(hour=0, minute=0, day=local_time_for_db.day + 1)
-        elif 15 <= local_minute <= 44:
+        if 15 <= minute <= 44:
             local_date_time_obj = local_date_time_obj.replace(minute=30)
-        elif local_minute < 30:
+        elif minute < 30:
             local_date_time_obj = local_date_time_obj.replace(minute=0)
+        elif local_date_time_obj.hour == 23 and local_date_time_obj.minute > 44:
+            local_date_time_obj = local_date_time_obj.replace(hour=0, minute=0) + timedelta(days=1)
         else:
-            local_date_time_obj = local_date_time_obj.replace(minute=0, hour=local_time_for_db.hour + 1)
+            local_date_time_obj = local_date_time_obj.replace(minute=0, hour=local_date_time_obj.hour + 1)
 
         local_date_for_db = local_date_time_obj.strftime("%d.%m.%Y")
         local_time_for_db = local_date_time_obj.strftime("%H:%M")
