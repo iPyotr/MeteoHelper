@@ -1,20 +1,18 @@
 from datetime import datetime, timedelta
-import math
-from typing import List, Any
 
-clouds_type: list[str | Any] = ['Облачность отсутствует',
-                                'Сi перистые',
-                                'Cc перисто-кучевые',
-                                'Cs перисто-слоистые',
-                                'Ac высококучевые',
-                                'As высокослоистые',
-                                'Sc слоисто-кучевые',
-                                'St слоистые',
-                                'Ns слоисто-дождевые',
-                                'Cu кучевые',
-                                'Cb кучево-дождевые',
-                                'Frnb разорванно-дождевые',
-                                ]
+clouds_type = ['Облачность отсутствует',
+               'Сi перистые',
+               'Cc перисто-кучевые',
+               'Cs перисто-слоистые',
+               'Ac высококучевые',
+               'As высокослоистые',
+               'Sc слоисто-кучевые',
+               'St слоистые',
+               'Ns слоисто-дождевые',
+               'Cu кучевые',
+               'Cb кучево-дождевые',
+               'Frnb разорванно-дождевые',
+               ]
 
 clouds_type_dictionary = {"Сi перистые": "Сi",
                           "Cc перисто-кучевые": "Cc",
@@ -71,8 +69,8 @@ wc_dictionary = {'явлений не наблюдается': 'NSW',
 
 
 def date_time_cod(date_time_string, set_report_time):  # Дата и время передачи сводки
-    '''Дата и время передачи сводки
-    Принимает значение даты и времени формирования сводки и возвращает код METAR'''
+    """Дата и время передачи сводки
+    Принимает значение даты и времени формирования сводки и возвращает код METAR"""
     date_time_obj = datetime.strptime(date_time_string, "%d/%m/%Y %H:%M")
     minute = date_time_obj.minute
     global date_time_for_metar, date_time_for_db, date_time_for_db

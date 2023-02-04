@@ -48,7 +48,7 @@ class App(customtkinter.CTk):
         # create navigation frame
         self.navigation_frame = customtkinter.CTkFrame(self, corner_radius=0)
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
-        self.navigation_frame.grid_rowconfigure(6, weight=1)
+        self.navigation_frame.grid_rowconfigure(7, weight=1)
 
         self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="  Лунская-А",
                                                              image=self.logo_image,
@@ -97,6 +97,15 @@ class App(customtkinter.CTk):
                                                       command=self.frame_3_button_event)
         self.frame_3_button.grid(row=5, column=0, sticky="ew")
 
+        self.frame_about_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40,
+                                                          border_spacing=10, text="О программе",
+                                                          fg_color="transparent", text_color=("gray10", "gray90"),
+                                                          hover_color=(
+                                                              "gray70", "gray30"),
+                                                          image=self.add_user_image, anchor="w",
+                                                          command=self.frame_about_button_event)
+        self.frame_about_button.grid(row=6, column=0, sticky="ew")
+
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame,
                                                                 values=[
                                                                     "Light", "Dark", "System"],
@@ -108,9 +117,6 @@ class App(customtkinter.CTk):
         self.home_frame = customtkinter.CTkFrame(
             self, corner_radius=0, fg_color="transparent")
         self.home_frame.grid_columnconfigure(0, weight=1)
-
-        # self.home_frame_large_image_label = customtkinter.CTkLabel(self.home_frame, text="", image=self.large_test_image)
-        # self.home_frame_large_image_label.grid(row=0, column=0, padx=20, pady=10)
 
         # Направление ветра (град)
         self.wind_dir_label = customtkinter.CTkLabel(self.home_frame, text="Направление ветра (град)",
@@ -408,6 +414,7 @@ class App(customtkinter.CTk):
         self.month_history_label.grid(row=0, column=2, padx=10, pady=0, sticky="ew")
         self.year_history_label.grid(row=0, column=3, padx=10, pady=0, sticky="ew")
 
+        # Создание таблицы для вывода данных из базы данных
         self.tree = ttk.Treeview(self.second_frame, show='headings')
         self.tree.grid(row=3, column=0, pady=(20, 20), padx=(20, 20), sticky="nsew")
         self.second_frame.grid_columnconfigure(0, weight=1, minsize=100)
@@ -421,8 +428,72 @@ class App(customtkinter.CTk):
             self.tree.column(header, width=50, anchor='center')
 
         # create third frame
-        self.third_frame = customtkinter.CTkFrame(
-            self, corner_radius=0, fg_color="transparent")
+        self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.additional_func_tab = customtkinter.CTkTabview(self.third_frame, width=900)
+        self.additional_func_tab.grid(row=0, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.additional_func_tab.add("История показаний")
+        self.additional_func_tab.add("Дополнительная опция 1")
+        self.additional_func_tab.add("Дополнительная опция 2")
+        ### Выбор начальной даты для экспорта в excel
+        self.date_from_label = customtkinter.CTkLabel(self.additional_func_tab.tab("История показаний"),
+                                                      text="Выбрать период времени:",
+                                                      font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.date_from_label.grid(row=0, column=0, pady=(10, 0), padx=10, sticky='W')
+        # self.day_from_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
+        #                                              placeholder_text="День", width=50,
+        #                                              text_color="#36719F",
+        #                                              font=customtkinter.CTkFont(size=12))
+        self.month_from_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
+                                                       placeholder_text="Месяц", width=50,
+                                                       text_color="#36719F",
+                                                       font=customtkinter.CTkFont(size=12))
+        self.year_from_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
+                                                      placeholder_text="Год", width=50,
+                                                      text_color="#36719F",
+                                                      font=customtkinter.CTkFont(size=12))
+        # self.day_from_entry.grid(row=0, column=1, pady=(10, 0), padx=10, sticky='W')
+        self.month_from_entry.grid(row=0, column=2, pady=(10, 0), padx=10, sticky='W')
+        self.year_from_entry.grid(row=0, column=3, pady=(10, 0), padx=10, sticky='W')
+        ### Выбор конечной даты для экспорта в excel
+        # self.date_to_label = customtkinter.CTkLabel(self.additional_func_tab.tab("История показаний"),
+        #                                             text="Выбрать конечную дату:",
+        #                                             font=customtkinter.CTkFont(size=14, weight="bold"))
+        # self.date_to_label.grid(row=1, column=0, pady=(10, 0), padx=10, sticky='W')
+        # self.day_to_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
+        #                                            placeholder_text="День", width=50,
+        #                                            text_color="#36719F",
+        #                                            font=customtkinter.CTkFont(size=12))
+        # self.month_to_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
+        #                                              placeholder_text="Месяц", width=50,
+        #                                              text_color="#36719F",
+        #                                              font=customtkinter.CTkFont(size=12))
+        # self.year_to_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
+        #                                             placeholder_text="Год", width=50,
+        #                                             text_color="#36719F",
+        #                                             font=customtkinter.CTkFont(size=12))
+        # self.day_to_entry.grid(row=1, column=1, pady=(10, 0), padx=10, sticky='W')
+        # self.month_to_entry.grid(row=1, column=2, pady=(10, 0), padx=10, sticky='W')
+        # self.year_to_entry.grid(row=1, column=3, pady=(10, 0), padx=10, sticky='W')
+        # Кнопка для экспорта данных из базы данных в файл excel
+        self.history_to_excel_button = customtkinter.CTkButton(self.additional_func_tab.tab("История показаний"),
+                                                               command=self.data_to_excel, text='Экспорт данных',
+                                                               width=100,
+                                                               height=35)
+        self.history_to_excel_button.grid(row=2, column=1, padx=0, pady=10, columnspan=3)
+
+        # Создание фрейма "О программе"
+        self.about_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.dev_label = customtkinter.CTkLabel(self.about_frame, text=f"Разработчик: Писанко Пётр Фёдорович",
+                                                font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.dev_label.grid(row=0, column=0, pady=(10, 0), padx=10, sticky='W')
+        self.expert_label = customtkinter.CTkLabel(self.about_frame,
+                                                   text=f"Главный консультант: Сухоручкин Валерий Валерьевич",
+                                                   font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.expert_label.grid(row=1, column=0, pady=(0, 0), padx=10, sticky='W')
+        # self.thanks_label = customtkinter.CTkLabel(self.about_frame,
+        #                                            text=f"Отдельная благодарность: Кармадонову Сергею Викторовичу",
+        #                                            font=customtkinter.CTkFont(size=14, weight="bold"))
+        # self.thanks_label.grid(row=2, column=0, pady=(10, 0), padx=10, sticky='W')
 
         # select default frame
         self.select_frame_by_name("home")
@@ -432,16 +503,16 @@ class App(customtkinter.CTk):
         ########
         # Значения по умолчанию
         # set default values
-        self.wind_entry.insert(0, 12)
-        self.windgust_entry.insert(0, 37)
-        self.visibility_entry.insert(0, 1500)
-        self.wind_dir_entry.insert(0, 250)
-        self.temperature_entry.insert(0, -21.6)
-        self.humidity_entry.insert(0, 0)
-        self.cloud_base_lower_entry.insert(0, 700)
-        self.pressure_helideck_entry.insert(0, 747.7)
-        self.pressure_sea_level_entry.insert(0, 1012.4)
-        self.dew_point_temperature_entry.insert(0, -22.9)
+        # self.wind_entry.insert(0, 12)
+        # self.windgust_entry.insert(0, 37)
+        # self.visibility_entry.insert(0, 1500)
+        # self.wind_dir_entry.insert(0, 250)
+        # self.temperature_entry.insert(0, -21.6)
+        # self.humidity_entry.insert(0, 0)
+        # self.cloud_base_lower_entry.insert(0, 700)
+        # self.pressure_helideck_entry.insert(0, 747.7)
+        # self.pressure_sea_level_entry.insert(0, 1012.4)
+        # self.dew_point_temperature_entry.insert(0, -22.9)
         #
         self.wave_height_entry.insert(0, 0)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
@@ -467,6 +538,8 @@ class App(customtkinter.CTk):
             fg_color=("gray75", "gray25") if name == "frame_2" else "transparent")
         self.frame_3_button.configure(
             fg_color=("gray75", "gray25") if name == "frame_3" else "transparent")
+        self.frame_about_button.configure(
+            fg_color=("gray75", "gray25") if name == "frame_about" else "transparent")
 
         # show selected frame
         if name == "home":
@@ -482,6 +555,10 @@ class App(customtkinter.CTk):
             self.third_frame.grid(row=0, column=1, sticky="nsew")
         else:
             self.third_frame.grid_forget()
+        if name == "frame_about":
+            self.about_frame.grid(row=0, column=1, sticky="nsew")
+        else:
+            self.about_frame.grid_forget()
 
     def date_for_history_table(self):
         current_date = time.strftime("%d")
@@ -490,6 +567,9 @@ class App(customtkinter.CTk):
         self.day_history_OptionMenu.set(current_date)
         self.month_history_OptionMenu.set(current_month)
         self.year_history_OptionMenu.set(current_year)
+
+    def data_to_excel(self):
+        data_to_excel_period(self.month_from_entry.get(), self.year_from_entry.get())
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -500,6 +580,9 @@ class App(customtkinter.CTk):
     def frame_3_button_event(self):
         self.select_frame_by_name("frame_3")
 
+    def frame_about_button_event(self):
+        self.select_frame_by_name("frame_about")
+
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
 
@@ -507,11 +590,11 @@ class App(customtkinter.CTk):
     #####################################
     #####################################
     def update_humid(self, *args):
-        '''RH = (e / e_s) * 100 где:
+        """RH = (e / e_s) * 100 где:
             e = (6.11 * 10^((7.5 * Td) / (237.7 + Td))) * (10^(2) / (T + 273.15)) - абсолютная влажность воздуха
             e_s = (6.11 * 10^((7.5 * T) / (237.7 + T))) * (10^(2) / (T + 273.15)) - абсолютная влажность воздуха при сухом воздухе
             RH - относительная влажность воздуха в процентах
-            '''
+            """
 
         T = float(self.temperature_entry.get())
         Td = float(self.dew_point_temperature_entry.get())
@@ -554,7 +637,8 @@ class App(customtkinter.CTk):
             self.cloud_form_optionmenu2.grid()
 
     def change_state_cloud3(self, event):
-        print('1', self.cloud_form_optionmenu_var.get() , '2', self.cloud_form_optionmenu2_var.get(), self.cloud_form_optionmenu3_var.get())
+        print('1', self.cloud_form_optionmenu_var.get(), '2', self.cloud_form_optionmenu2_var.get(),
+              self.cloud_form_optionmenu3_var.get())
         if self.cloud_form_optionmenu2_var.get() == "Облачность отсутствует":
             self.cloud_form_optionmenu2.set("")
             self.cloud_form_optionmenu2.grid_remove()
@@ -601,8 +685,7 @@ class App(customtkinter.CTk):
         datetime_utc = str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))
         set_report_time = self.set_report_time_button_var.get()
         local_datetime = str(time.strftime("%Y/%m/%d %H:%M:%S"))
-        # dt_metar, date_utc, time_utc = date_time_cod(datetime_utc, set_report_time)
-        dt_metar, date_utc, time_utc = date_time_cod('03/02/2023 23:44', set_report_time)
+        dt_metar, date_utc, time_utc = date_time_cod(datetime_utc, set_report_time)
         local_date_for_db, local_time_for_db = local_date_time_cod(local_datetime, set_report_time)
 
         metar_all = metar_cod(self.wind_entry.get(),

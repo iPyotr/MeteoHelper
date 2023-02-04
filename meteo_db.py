@@ -1,12 +1,7 @@
-from config import host_cnf, user_cnf, password_cnf, db_name_cnf
+
 import sqlite3
-import tkinter as tk
 from tkinter import messagebox
-import datetime
-import time
-from dateutil.parser import parse
 import pandas as pd
-from datetime import datetime
 
 
 def create_db_luna():  # Создание базы данных
@@ -174,6 +169,31 @@ def insert_additional_data(data):
     conn = sqlite3.connect('C:/Apps/luna.db')
     data.to_sql('meteo', conn, if_exists='append', index=False)
     conn.close()
+
+def data_to_excel_period(month_from, year_from):
+    import os
+    if len(str(month_from)) < 2 or len(str(year_from)) > 4:
+        messagebox.showwarning("Проверь дату", "Месяц - 2 цифры. Год - 4 цифры.")
+    elif not month_from.isdigit() or not year_from.isdigit():
+        messagebox.showwarning("Проверь дату", "Допускается ввод только цифр")
+    else:
+        start_date = f'{month_from}.{year_from}'
+        print(start_date)
+        conn = sqlite3.connect('C:/Apps/luna.db')
+        df = pd.read_sql_query("SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition," \
+                "temperature,dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, " \
+                "pressure_sea_level, wave FROM meteo WHERE local_date_for_db LIKE '%{}%'".format(start_date), conn)
+
+        # Save DataFrame to Excel file
+        file_name = f'LUNA {start_date}'
+        df.to_excel(f"C:/Apps/{file_name}.xlsx", index=False)
+
+        conn.close()
+        result = messagebox.askquestion(title='Данные',
+                                        message=f"В папке C:/Apps/ создан отчёт {file_name}\nОткрыть?")
+        if result == 'yes':
+            os.startfile(f"C:/Apps/{file_name}.xlsx")
+
 
 # create_db_luna()
 # delete_all_data()
