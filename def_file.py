@@ -12,6 +12,7 @@ clouds_type = ['Облачность отсутствует',
                'Cu кучевые',
                'Cb кучево-дождевые',
                'Frnb разорванно-дождевые',
+               'VV вертикальная видимость'
                ]
 
 clouds_type_dictionary = {"Сi перистые": "Сi",
@@ -25,6 +26,7 @@ clouds_type_dictionary = {"Сi перистые": "Сi",
                           "Cu кучевые": "Cu",
                           "Cb кучево-дождевые": "Cb",
                           "Frnb разорванно-дождевые": "Frnb",
+                          "VV вертикальная видимость": "VV",
                           '': ' '
                           }
 
@@ -203,7 +205,7 @@ def wind_speed_cod(data):  # Средняя скорость ветра (м/c)
     Принимает значение скорости ветра в м/с и возвращает код METAR'''
     data = int(data)
     if 0 <= data < 10:
-        return '0' + str(data)
+        return str(data).zfill(2)
     else:
         return str(data)
 
@@ -215,7 +217,7 @@ def wind_gust_cod(data):  # Максимальный порыв ветра (м/�
     if data == 0:
         return ''
     else:
-        return str(data)
+        return str(data).zfill(2)
 
 
 def wind_direction_cod(n):  # Направление ветра (град)
@@ -325,16 +327,14 @@ def total_clouds_cod(data):  # Общее количество облачнос�
         return 'NSC'
     elif visibility_h < 1000:
         return 'VV' + str(ngo // 30).zfill(3)
-    elif visibility_h > 1000 and qt_lower < 3:
+    elif visibility_h >= 1000 and qt_lower < 3:
         return 'FEW' + str(ngo // 30).zfill(3)
-    elif visibility_h > 1000 and 3 <= qt_lower <= 4:
+    elif visibility_h >= 1000 and 3 <= qt_lower <= 4:
         return 'SCT' + str(ngo // 30).zfill(3)
-    elif visibility_h > 1000 and 5 <= qt_lower <= 7:
+    elif visibility_h >= 1000 and 5 <= qt_lower <= 7:
         return 'BKN' + str(ngo // 30).zfill(3)
-    elif visibility_h > 1000 and qt_lower == 8:
+    elif visibility_h >= 1000 and qt_lower == 8:
         return 'OVC' + str(ngo // 30).zfill(3)
-
-    pass
 
 
 def quantity_clouds_cod(data):  # Количество нижнего яруса (октанты)
