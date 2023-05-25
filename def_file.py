@@ -154,6 +154,10 @@ def local_date_time_cod(date_time_string, set_report_time):  # Дата и вр�
 def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     wind_speed = wind_speed_cod(ws)
     wind_gust = wind_gust_cod(wg)
+    if int(wg) - int(ws) < 3:
+        wind_metar = f'{wind_speed}MPS'
+    else:
+        wind_metar = f'{wind_speed}G{wind_gust}MPS'
     wind_direction = wind_direction_cod(wd)
     visibility = visibility_cod(v)
     weather_conditions = weather_conditions_cod(wc)
@@ -174,8 +178,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     if weather_conditions == 'NN':
         metar_data = f'{date_time_for_metar}Z ' \
                      f'{str(wind_direction)}' \
-                     f'{str(wind_speed)}' \
-                     f'G{str(wind_gust)}MPS ' \
+                     f'{str(wind_metar)} ' \
                      f'{str(visibility)} ' \
                      f'{str(total_clouds)} ' \
                      f'{str(temperature)}/' \
@@ -186,8 +189,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     else:
         metar_data = f'{date_time_for_metar}Z ' \
                      f'{str(wind_direction)}' \
-                     f'{str(wind_speed)}' \
-                     f'G{str(wind_gust)}MPS ' \
+                     f'{str(wind_metar)}' \
                      f'{str(visibility)} ' \
                      f'{str(weather_conditions)} ' \
                      f'{str(total_clouds)} ' \
@@ -278,7 +280,10 @@ def pressure_sea_level_cod(data):  # Давление на уровне моря
 def temperature_cod(data):  # Температура воздуха(град)
     '''Температура воздуха(град)
     Принимает значение температуры воздуха в градусах и возвращает код METAR'''
-    n = int(round(float(data)))
+    num = float(data)
+    if int(str(num)[-1]) == 5:
+        num += 0.1
+    n = round(num)
     if n < 0:
         n = abs(n)
         n = "M" + str(n).zfill(2)
@@ -290,7 +295,10 @@ def temperature_cod(data):  # Температура воздуха(град)
 def dew_point_temperature_cod(data):  # Температура точки росы(град)
     '''Температура точки росы(град)
     Принимает значение температуры точки росы в градусах и возвращает код METAR'''
-    n = int(round(float(data)))
+    num = float(data)
+    if int(str(num)[-1]) == 5:
+        num += 0.1
+    n = round(num)
     if n < 0:
         n = abs(n)
         n = "M" + str(n).zfill(2)

@@ -172,6 +172,7 @@ def insert_additional_data(data):
 
 def data_to_excel_period(month_from, year_from):
     import os
+    import openpyxl
     if len(str(month_from)) < 2 or len(str(year_from)) > 4:
         messagebox.showwarning("Проверь дату", "Месяц - 2 цифры. Год - 4 цифры.")
     elif not month_from.isdigit() or not year_from.isdigit():
@@ -183,10 +184,31 @@ def data_to_excel_period(month_from, year_from):
         df = pd.read_sql_query("SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition," \
                 "temperature,dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, " \
                 "pressure_sea_level, wave FROM meteo WHERE local_date_for_db LIKE '%{}%'".format(start_date), conn)
-
+        # df = df.applymap(lambda x: x.replace(",", ".") if isinstance(x, str) else x)
         # Save DataFrame to Excel file
         file_name = f'LUNA {start_date}'
-        df.to_excel(f"C:/Apps/{file_name}.xlsx", index=False)
+        df.to_excel(f"C:/Apps/{file_name}.xlsx", engine='openpyxl', index=False)
+
+        # Load the Excel file with openpyxl
+        book = openpyxl.load_workbook(f"C:/Apps/{file_name}.xlsx")
+        sheet = book.active
+
+        # Iterate over cells and set the number format
+        for row in sheet.iter_rows():
+            for cell in row:
+                if isinstance(cell.value, int):
+                    cell.number_format = '0'
+                elif isinstance(cell.value, float):
+                    cell.number_format = '0.0'
+        # Set the number format for the specific columns
+        for col in ["temperature", "dew_point", "pressure_heli", "pressure_sea_level"]:
+            column_index = df.columns.get_loc(col) + 1
+            for row in sheet.iter_rows(min_row=2, min_col=column_index, max_col=column_index):
+                for cell in row:
+                    cell.number_format = '0.0'
+
+        # Save the Excel file
+        book.save(f"C:/Apps/{file_name}.xlsx")
 
         conn.close()
         result = messagebox.askquestion(title='Данные',
