@@ -189,7 +189,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     else:
         metar_data = f'{date_time_for_metar}Z ' \
                      f'{str(wind_direction)}' \
-                     f'{str(wind_metar)}' \
+                     f'{str(wind_metar)} ' \
                      f'{str(visibility)} ' \
                      f'{str(weather_conditions)} ' \
                      f'{str(total_clouds)} ' \
