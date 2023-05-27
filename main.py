@@ -13,7 +13,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Meteo Helper v0.2.1")
+        self.title("Meteo Helper v0.2.2")
         self.iconbitmap('img/icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
@@ -30,7 +30,7 @@ class App(customtkinter.CTk):
                                                  size=(40, 40))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
-        self.window_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "icon.ico")),
+        self.window_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "sun.png")),
                                                         size=(20, 20))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
                                                  dark_image=Image.open(os.path.join(

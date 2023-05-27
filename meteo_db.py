@@ -5,9 +5,10 @@ import os
 import openpyxl
 from openpyxl.styles import Alignment
 
-
+db_dir_name = f"C:/Apps/MeteoHelperData/"
 def create_db_luna():  # Создание базы данных
-    db = sqlite3.connect('C:/Apps/luna.db')
+    global db_dir_name
+    db = sqlite3.connect(f'{db_dir_name}luna.db')
     c = db.cursor()
 
     c.execute("""CREATE TABLE meteo (
@@ -38,7 +39,8 @@ def create_db_luna():  # Создание базы данных
 
 
 def delete_all_data():  # Удаление всех данных из базы
-    db = sqlite3.connect('C:/Apps/luna.db')
+    global db_dir_name
+    db = sqlite3.connect(f'{db_dir_name}luna.db')
     c = db.cursor()
     c.execute(" DELETE FROM meteo ")
     db.commit()
@@ -47,7 +49,8 @@ def delete_all_data():  # Удаление всех данных из базы
 
 def check_data(date, time):
     # Creating a connection to the database
-    conn = sqlite3.connect('C:/Apps/luna.db')
+    global db_dir_name
+    conn = sqlite3.connect(f'{db_dir_name}luna.db')
     # Creating a cursor object
     cursor = conn.cursor()
 
@@ -72,6 +75,8 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
                 dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli,
                 pressure_sea_level,
                 wave, comments, metar_cod):
+    global db_dir_name
+
     # Checking if data already exists for the specified time and date
     if check_data(date_utc, time_utc):
         # Displaying a messagebox asking the user if they want to overwrite the data
@@ -80,7 +85,7 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
         # If the user chooses to overwrite the data, proceed with the insertion
         if result:
             # Creating a connection to the database
-            conn = sqlite3.connect('C:/Apps/luna.db')
+            conn = sqlite3.connect(f'{db_dir_name}luna.db')
             # Creating a cursor object
             cursor = conn.cursor()
 
@@ -104,7 +109,7 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
 
     else:
         # Creating a connection to the database
-        conn = sqlite3.connect('C:/Apps/luna.db')
+        conn = sqlite3.connect(f'{db_dir_name}luna.db')
 
         # Creating a cursor object
         cursor = conn.cursor()
@@ -128,10 +133,11 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
 
 
 def select_from_db(from_date, to_date):
+    global db_dir_name
     from_db = str(from_date)
     to_db = str(to_date)
 
-    db = sqlite3.connect('C:/Apps/luna.db')
+    db = sqlite3.connect(f'{db_dir_name}luna.db')
     c = db.cursor()
     query = "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition," \
             "temperature,dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, " \
@@ -144,7 +150,8 @@ def select_from_db(from_date, to_date):
 
 
 def select_from_db_test():
-    db = sqlite3.connect('C:/Apps/luna.db')
+    global db_dir_name
+    db = sqlite3.connect(f'{db_dir_name}luna.db')
     c = db.cursor()
 
     c.execute("SELECT * FROM meteo")
@@ -157,12 +164,14 @@ def select_from_db_test():
 
 def insert_additional_data(data):
     """Функция добавляет данные в базу данных"""
-    conn = sqlite3.connect('C:/Apps/luna.db')
+    global db_dir_name
+    conn = sqlite3.connect(f'{db_dir_name}luna.db')
     data.to_sql('meteo', conn, if_exists='append', index=False)
     conn.close()
 
 
 def data_to_excel_month(month_from, year_from):
+    global db_dir_name
     if len(str(month_from)) < 2 or len(str(year_from)) > 4:
         messagebox.showwarning("Проверь дату", "Месяц - 2 цифры. Год - 4 цифры.")
     elif not month_from.isdigit() or not year_from.isdigit():
@@ -170,7 +179,7 @@ def data_to_excel_month(month_from, year_from):
     else:
         start_date = f'{year_from}-{month_from}'
         print(start_date)
-        conn = sqlite3.connect('C:/Apps/luna.db')
+        conn = sqlite3.connect(f'{db_dir_name}luna.db')
         df = pd.read_sql_query(
             "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition," \
             "temperature,dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, " \
@@ -209,11 +218,12 @@ def data_to_excel_month(month_from, year_from):
 
 
 def data_to_excel_period(from_date, to_date):
+    global db_dir_name
     start_date = from_date
     end_date = to_date
 
     print(start_date)
-    conn = sqlite3.connect('C:/Apps/luna.db')
+    conn = sqlite3.connect(f'{db_dir_name}luna.db')
 
     # Формируем параметризованный запрос
     query = "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, " \
@@ -236,11 +246,12 @@ def data_to_excel_period(from_date, to_date):
     df = df.rename(columns=dic_col)
     print(df)
     # Save DataFrame to Excel file
-    file_name = f'LUNA {start_date} - {end_date}'
-    df.to_excel(f"C:/Apps/{file_name}.xlsx", engine='openpyxl', index=False)
+    dir_name = f"C:/Apps/MeteoHelperData/Excel/"
+    file_name = f"LUNA_выгрузка данных за период {start_date} - {end_date}.xlsx"
+    df.to_excel(f"{dir_name}{file_name}", engine='openpyxl', index=False)
 
     # Load the Excel file with openpyxl
-    book = openpyxl.load_workbook(f"C:/Apps/{file_name}.xlsx")
+    book = openpyxl.load_workbook(f"{dir_name}{file_name}")
     sheet = book.active
 
     # Iterate over cells and set the number format
@@ -274,13 +285,13 @@ def data_to_excel_period(from_date, to_date):
         sheet.column_dimensions[column_letter].width = 14
 
     # Save the Excel file
-    book.save(f"C:/Apps/{file_name}.xlsx")
+    book.save(f"{dir_name}{file_name}")
 
     conn.close()
     result = messagebox.askquestion(title='Данные',
-                                    message=f"В папке C:/Apps/ создан отчёт {file_name}\nОткрыть?")
+                                    message=f"В папке {dir_name} создан отчёт {file_name}\nОткрыть?")
     if result == 'yes':
-        os.startfile(f"C:/Apps/{file_name}.xlsx")
+        os.startfile(f"{dir_name}{file_name}")
 
 # create_db_luna()
 # delete_all_data()
