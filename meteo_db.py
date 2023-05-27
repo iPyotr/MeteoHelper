@@ -261,7 +261,7 @@ def data_to_excel_period(from_date, to_date):
                 cell.number_format = '0.0'
 
     # Установка высоты первой строки
-    sheet.row_dimensions[1].height = 48
+    sheet.row_dimensions[1].height = 60
 
     # Включение переноса слов и выравнивание текста
     for row in sheet.iter_rows(min_row=1, max_row=1):
