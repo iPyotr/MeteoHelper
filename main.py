@@ -1,5 +1,4 @@
 import customtkinter
-import os
 from PIL import Image
 from meteo_db import *
 from def_file import *
@@ -7,13 +6,14 @@ import webbrowser
 import time
 from tkinter import ttk
 from datetime import datetime
+from tkcalendar import DateEntry
 
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Meteo Helper")
+        self.title("Meteo Helper v0.9.1")
         self.iconbitmap('img/icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
@@ -386,33 +386,33 @@ class App(customtkinter.CTk):
         self.home_frame_button_2.grid(row=1, column=0, padx=20, pady=0, sticky="w")
 
         self.day_history_OptionMenu = customtkinter.CTkOptionMenu(self.history_date_frame, dynamic_resizing=False,
-                                                                  values=['01', '02', '03', '04', '05', '06', '07',
-                                                                          '08', '09',
-                                                                          '10', '11', '12', '13', '14', '15', '16',
-                                                                          '17', '18',
-                                                                          '19', '20', '21', '22', '23', '24', '25',
-                                                                          '26', '27',
-                                                                          '28', '29', '30', '31'], width=87)
-        self.month_history_OptionMenu = customtkinter.CTkOptionMenu(self.history_date_frame, dynamic_resizing=False,
-                                                                    values=['01', '02', '03', '04', '05', '06', '07',
-                                                                            '08', '09',
-                                                                            '10', '11', '12'], width=87)
-        self.year_history_OptionMenu = customtkinter.CTkOptionMenu(self.history_date_frame, dynamic_resizing=False,
-                                                                   values=['2023', '2022'], width=87)
-        self.day_history_label = customtkinter.CTkLabel(self.history_date_frame, text="День",
-                                                        font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.month_history_label = customtkinter.CTkLabel(self.history_date_frame, text="Месяц",
-                                                          font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.year_history_label = customtkinter.CTkLabel(self.history_date_frame, text="Год",
-                                                         font=customtkinter.CTkFont(size=14, weight="bold"))
+                                                                  values= [], width=87)
+        # Установка дат для отображения данных в окне
 
-        self.day_history_OptionMenu.grid(row=1, column=1, padx=10, pady=0, sticky="w")
-        self.month_history_OptionMenu.grid(row=1, column=2, padx=10, pady=0, sticky="w")
-        self.year_history_OptionMenu.grid(row=1, column=3, padx=10, pady=0, sticky="w")
+        self.history_from_date_picker_label = customtkinter.CTkLabel(self.history_date_frame, text="Начальная дата",
+                                                          font=customtkinter.CTkFont(size=12, weight="normal"))
+        self.history_from_date_picker_label.grid(row=0, column=1, padx=10, pady=0, sticky="we")
+        self.history_from_date_picker_label.configure(justify='center')
 
-        self.day_history_label.grid(row=0, column=1, padx=10, pady=0, sticky="ew")
-        self.month_history_label.grid(row=0, column=2, padx=10, pady=0, sticky="ew")
-        self.year_history_label.grid(row=0, column=3, padx=10, pady=0, sticky="ew")
+        self.history_from_date_picker = DateEntry(self.history_date_frame, width=12,
+                                     background='darkblue', foreground='white',
+                                     font=('Arial', 10, 'bold'), borderwidth=2, date_pattern="yyyy-mm-dd")
+        self.history_from_date_picker.grid(row=1, column=1, padx=10, pady=0, sticky="ew")
+        self.history_from_date_picker.configure(justify='center')
+
+        self.history_to_date_picker_label = customtkinter.CTkLabel(self.history_date_frame, text="Конечная дата",
+                                                                     font=customtkinter.CTkFont(size=12,
+                                                                                                weight="normal"))
+        self.history_to_date_picker_label.grid(row=0, column=2, padx=10, pady=0, sticky="ew")
+        self.history_to_date_picker_label.configure(justify='center')
+
+        self.history_to_date_picker = DateEntry(self.history_date_frame, width=12,
+                                                  background='darkblue', foreground='white',
+                                                  font=('Arial', 10, 'bold'), borderwidth=2, date_pattern="yyyy-mm-dd")
+        self.history_to_date_picker.grid(row=1, column=2, padx=10, pady=0, sticky="ew")
+        self.history_to_date_picker.configure(justify='center')
+
+
 
         # Создание таблицы для вывода данных из базы данных
         self.tree = ttk.Treeview(self.second_frame, show='headings')
@@ -431,55 +431,43 @@ class App(customtkinter.CTk):
         self.third_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.additional_func_tab = customtkinter.CTkTabview(self.third_frame, width=900)
         self.additional_func_tab.grid(row=0, column=0, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        self.additional_func_tab.add("История показаний")
+        self.additional_func_tab.add("Экспорт в excel")
         self.additional_func_tab.add("Дополнительная опция 1")
         self.additional_func_tab.add("Дополнительная опция 2")
         ### Выбор начальной даты для экспорта в excel
-        self.date_from_label = customtkinter.CTkLabel(self.additional_func_tab.tab("История показаний"),
-                                                      text="Выбрать период времени:",
+        self.date_from_label = customtkinter.CTkLabel(self.additional_func_tab.tab("Экспорт в excel"),
+                                                      text="Введите начальную дату:",
                                                       font=customtkinter.CTkFont(size=14, weight="bold"))
         self.date_from_label.grid(row=0, column=0, pady=(10, 0), padx=10, sticky='W')
-        # self.day_from_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
-        #                                              placeholder_text="День", width=50,
-        #                                              text_color="#36719F",
-        #                                              font=customtkinter.CTkFont(size=12))
-        self.month_from_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
-                                                       placeholder_text="Месяц", width=50,
-                                                       text_color="#36719F",
-                                                       font=customtkinter.CTkFont(size=12))
-        self.year_from_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
-                                                      placeholder_text="Год", width=50,
-                                                      text_color="#36719F",
-                                                      font=customtkinter.CTkFont(size=12))
-        # self.day_from_entry.grid(row=0, column=1, pady=(10, 0), padx=10, sticky='W')
-        self.month_from_entry.grid(row=0, column=2, pady=(10, 0), padx=10, sticky='W')
-        self.year_from_entry.grid(row=0, column=3, pady=(10, 0), padx=10, sticky='W')
+
+        self.for_excel_from_date_picker = DateEntry(self.additional_func_tab.tab("Экспорт в excel"), width=12,
+                                                  background='darkblue', foreground='white',
+                                                  font=('Arial', 10, 'bold'), borderwidth=2, date_pattern="yyyy-mm-dd")
+        self.for_excel_from_date_picker.grid(row=0, column=2, pady=(10, 0), padx=10, sticky='EW')
+        self.for_excel_from_date_picker.configure(justify='center')
+
+
         ### Выбор конечной даты для экспорта в excel
-        # self.date_to_label = customtkinter.CTkLabel(self.additional_func_tab.tab("История показаний"),
-        #                                             text="Выбрать конечную дату:",
-        #                                             font=customtkinter.CTkFont(size=14, weight="bold"))
-        # self.date_to_label.grid(row=1, column=0, pady=(10, 0), padx=10, sticky='W')
-        # self.day_to_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
-        #                                            placeholder_text="День", width=50,
-        #                                            text_color="#36719F",
-        #                                            font=customtkinter.CTkFont(size=12))
-        # self.month_to_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
-        #                                              placeholder_text="Месяц", width=50,
-        #                                              text_color="#36719F",
-        #                                              font=customtkinter.CTkFont(size=12))
-        # self.year_to_entry = customtkinter.CTkEntry(self.additional_func_tab.tab("История показаний"),
-        #                                             placeholder_text="Год", width=50,
-        #                                             text_color="#36719F",
-        #                                             font=customtkinter.CTkFont(size=12))
-        # self.day_to_entry.grid(row=1, column=1, pady=(10, 0), padx=10, sticky='W')
-        # self.month_to_entry.grid(row=1, column=2, pady=(10, 0), padx=10, sticky='W')
-        # self.year_to_entry.grid(row=1, column=3, pady=(10, 0), padx=10, sticky='W')
+        self.date_to_label = customtkinter.CTkLabel(self.additional_func_tab.tab("Экспорт в excel"),
+                                                    text="Введите конечную дату:",
+                                                    font=customtkinter.CTkFont(size=14, weight="bold"))
+        self.date_to_label.grid(row=1, column=0, pady=(10, 0), padx=10, sticky='W')
+
+        self.for_excel_to_date_picker = DateEntry(self.additional_func_tab.tab("Экспорт в excel"), width=12,
+                                                    background='darkblue', foreground='white',
+                                                    font=('Arial', 10, 'bold'), borderwidth=2,
+                                                    date_pattern="yyyy-mm-dd")
+        self.for_excel_to_date_picker.grid(row=1, column=2, pady=(10, 0), padx=10, sticky='EW')
+        self.for_excel_to_date_picker.configure(justify='center')
+
         # Кнопка для экспорта данных из базы данных в файл excel
-        self.history_to_excel_button = customtkinter.CTkButton(self.additional_func_tab.tab("История показаний"),
-                                                               command=self.data_to_excel, text='Экспорт данных',
+        self.history_to_excel_button = customtkinter.CTkButton(self.additional_func_tab.tab("Экспорт в excel"),
+                                                               command=self.data_to_excel_period, text='Экспорт данных',
                                                                width=100,
                                                                height=35)
         self.history_to_excel_button.grid(row=2, column=1, padx=0, pady=10, columnspan=3)
+
+
 
         # Создание фрейма "О программе"
         self.about_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -548,7 +536,6 @@ class App(customtkinter.CTk):
             self.home_frame.grid_forget()
         if name == "frame_2":
             self.second_frame.grid(row=0, column=1, sticky="nsew")
-            self.date_for_history_table()
         else:
             self.second_frame.grid_forget()
         if name == "frame_3":
@@ -560,16 +547,10 @@ class App(customtkinter.CTk):
         else:
             self.about_frame.grid_forget()
 
-    def date_for_history_table(self):
-        current_date = time.strftime("%d")
-        current_month = time.strftime("%m")
-        current_year = time.strftime("%Y")
-        self.day_history_OptionMenu.set(current_date)
-        self.month_history_OptionMenu.set(current_month)
-        self.year_history_OptionMenu.set(current_year)
 
-    def data_to_excel(self):
-        data_to_excel_period(self.month_from_entry.get(), self.year_from_entry.get())
+    def data_to_excel_period(self):
+        data_to_excel_period(self.for_excel_from_date_picker.get_date(),
+                             self.for_excel_to_date_picker.get_date())
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -733,7 +714,7 @@ class App(customtkinter.CTk):
 
     def check_user_name(self):
         import socket
-        user_name = ['petrp1', 'valery.sukhoruchkin']
+        user_name = ['petrp1', 'valery.sukhoruchkin', 'dmitry.koryagin']
         comp_name = ['Mybook', 'YUZCHE-D-99672']
         if os.getlogin() in user_name or socket.gethostname() in comp_name:
             self.click_metar()
@@ -770,9 +751,8 @@ class App(customtkinter.CTk):
                     cloud_base, clouds_type_cod, pressure_heli, pressure_sea_level, wave, comments, metar_cod_cod)
 
     def history_table(self):
-        data = select_from_db(self.day_history_OptionMenu.get(),
-                              self.month_history_OptionMenu.get(),
-                              self.year_history_OptionMenu.get())
+        data = select_from_db(self.history_from_date_picker.get_date(),
+                              self.history_to_date_picker.get_date())
 
         for i in self.tree.get_children():
             self.tree.delete(i)
@@ -780,6 +760,7 @@ class App(customtkinter.CTk):
         for row in data:
             print(row)
             self.tree.insert("", 'end', values=row)
+
 
 
 if __name__ == "__main__":
