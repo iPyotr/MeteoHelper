@@ -3,7 +3,9 @@ from tkinter import messagebox
 import pandas as pd
 import os
 import openpyxl
-from openpyxl.styles import Alignment
+from openpyxl.styles import Alignment, PatternFill
+from openpyxl.utils import datetime
+from datetime import datetime
 
 db_dir_name = f"C:/Apps/MeteoHelperData/"
 def create_db_luna():  # Создание базы данных
@@ -68,6 +70,7 @@ def check_data(date, time):
         return True
     else:
         return False
+
 
 
 def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust,
@@ -170,81 +173,44 @@ def insert_additional_data(data):
     conn.close()
 
 
-def data_to_excel_month(month_from, year_from):
-    global db_dir_name
-    if len(str(month_from)) < 2 or len(str(year_from)) > 4:
-        messagebox.showwarning("Проверь дату", "Месяц - 2 цифры. Год - 4 цифры.")
-    elif not month_from.isdigit() or not year_from.isdigit():
-        messagebox.showwarning("Проверь дату", "Допускается ввод только цифр")
-    else:
-        start_date = f'{year_from}-{month_from}'
-        print(start_date)
-        conn = sqlite3.connect(f'{db_dir_name}luna.db')
-        df = pd.read_sql_query(
-            "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition," \
-            "temperature,dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, " \
-            "pressure_sea_level, wave FROM meteo WHERE local_date_for_db LIKE '%{}%'".format(start_date), conn)
-        # df = df.applymap(lambda x: x.replace(",", ".") if isinstance(x, str) else x)
-        # Save DataFrame to Excel file
-        file_name = f'LUNA {start_date}'
-        df.to_excel(f"C:/Apps/{file_name}.xlsx", engine='openpyxl', index=False)
-
-        # Load the Excel file with openpyxl
-        book = openpyxl.load_workbook(f"C:/Apps/{file_name}.xlsx")
-        sheet = book.active
-
-        # Iterate over cells and set the number format
-        for row in sheet.iter_rows():
-            for cell in row:
-                if isinstance(cell.value, int):
-                    cell.number_format = '0'
-                elif isinstance(cell.value, float):
-                    cell.number_format = '0.0'
-        # Set the number format for the specific columns
-        for col in ["temperature", "dew_point", "pressure_heli", "pressure_sea_level"]:
-            column_index = df.columns.get_loc(col) + 1
-            for row in sheet.iter_rows(min_row=2, min_col=column_index, max_col=column_index):
-                for cell in row:
-                    cell.number_format = '0.0'
-
-        # Save the Excel file
-        book.save(f"C:/Apps/{file_name}.xlsx")
-
-        conn.close()
-        result = messagebox.askquestion(title='Данные',
-                                        message=f"В папке C:/Apps/ создан отчёт {file_name}\nОткрыть?")
-        if result == 'yes':
-            os.startfile(f"C:/Apps/{file_name}.xlsx")
-
-
-def data_to_excel_period(from_date, to_date):
+def data_for_excel(from_date, to_date, comments):
     global db_dir_name
     start_date = from_date
     end_date = to_date
-
-    print(start_date)
     conn = sqlite3.connect(f'{db_dir_name}luna.db')
-
     # Формируем параметризованный запрос
     query = "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, " \
             "weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, " \
-            "cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave " \
+            "cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments " \
             "FROM meteo " \
             "WHERE local_date_for_db " \
             "BETWEEN :start_date AND :end_date"
 
     # Выполняем запрос с использованием параметров
     df = pd.read_sql_query(query, params={"start_date": start_date, "end_date": end_date}, con=conn)
-    print(df)
+
     dic_col = {'date_utc': 'Дата UTC', 'time_utc': 'Время UTC', 'wind_direction': 'Направление ветра',
                'wind_speed': 'Скорость ветра', 'wind_gust': 'Порыв ветра', 'visibility': 'Горизонтальная видимость',
                'weather_condition': 'Атмосферные явления', 'temperature': 'Температура воздуха',
                'dew_point': 'Точка росы', 'humidity': 'Влажность воздуха', 'qt_clouds': 'Общее воличество облаков',
                'qt_lower_clouds': 'Количество облаков нижнего яруса', 'cloud_base': 'Нижняя граница облачности',
                'clouds_type': 'Тип облачности', 'pressure_heli': 'Давление на уровне вертолётной площадки',
-               'pressure_sea_level': 'Давление на уровне моря', 'wave': 'Высота волн'}
+               'pressure_sea_level': 'Давление на уровне моря', 'wave': 'Высота волн', 'comments': 'Комментарии'}
     df = df.rename(columns=dic_col)
-    print(df)
+    conn.close()
+    if comments == 0:
+        df = df.drop('Комментарии', axis=1)
+    export_to_excel(df, start_date, end_date)
+
+
+
+def export_to_excel(df, from_date, to_date):
+    start_date = from_date
+    end_date = to_date
+    # Преобразование формата даты для выгрузки в Excel
+    # Иначе при открытии файла дата не распознаётся как дата
+    df['Дата UTC'] = df['Дата UTC'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d').date())
+
     # Save DataFrame to Excel file
     dir_name = f"C:/Apps/MeteoHelperData/Excel/"
     file_name = f"LUNA_выгрузка данных за период {start_date} - {end_date}.xlsx"
@@ -273,21 +239,31 @@ def data_to_excel_period(from_date, to_date):
 
     # Установка высоты первой строки
     sheet.row_dimensions[1].height = 60
+    # Создание объекта PatternFill для установки серого цвета
+    grey_fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+    # Установка цвета фона для ячеек первой строки
+    for cell in sheet[1]:
+        cell.fill = grey_fill
+    # Включение отображения фильтра в первой строке
+    sheet.auto_filter.ref = sheet.dimensions
 
-    # Включение переноса слов и выравнивание текста
-    for row in sheet.iter_rows(min_row=1, max_row=1):
+
+    # Включение переноса слов и выравнивание текста по центру
+    for row in sheet.iter_rows():
         for cell in row:
             cell.alignment = Alignment(wrapText=True, horizontal='center', vertical='center')
-
     # Установка ширины столбцов
     for column in sheet.columns:
         column_letter = column[0].column_letter
         sheet.column_dimensions[column_letter].width = 14
-
+    # Зафризить первую строку
+    sheet.freeze_panes = 'A2'
+    # Установка формата "дата" для столбца
+    for cell in sheet['A']:
+        cell.number_format = 'dd/mm/yyyy'
     # Save the Excel file
     book.save(f"{dir_name}{file_name}")
 
-    conn.close()
     result = messagebox.askquestion(title='Данные',
                                     message=f"В папке {dir_name} создан отчёт {file_name}\nОткрыть?")
     if result == 'yes':
