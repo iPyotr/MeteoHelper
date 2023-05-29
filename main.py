@@ -13,7 +13,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Meteo Helper v0.2.3")
+        self.title("Meteo Helper v0.2.4")
         self.iconbitmap('img/icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
@@ -716,8 +716,8 @@ class App(customtkinter.CTk):
 
     def check_user_name(self):
         import socket
-        user_name = ['petrp1', 'valery.sukhoruchkin', 'dmitry.koryagin']
-        comp_name = ['Mybook', 'YUZCHE-D-99672']
+        user_name = ['petrp1', 'valery.sukhoruchkin', 'dmitry.koryagin', 'petr.pisanko', 'Igor.Ivanyuto']
+        comp_name = ['Mybook', 'YUZCHE-D-99672', 'YUZCHE-D-99660']
         if os.getlogin() in user_name or socket.gethostname() in comp_name:
             self.click_metar()
         else:
