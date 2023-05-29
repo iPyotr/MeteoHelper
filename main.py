@@ -14,7 +14,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.title("Meteo Helper v0.3.0")
-        self.iconbitmap('img/icon.ico')
+        self.wm_iconbitmap('img/window_icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
         self.resizable(width=False, height=False)
@@ -38,8 +38,8 @@ class App(customtkinter.CTk):
                                                  size=(40, 40))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
-        self.window_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "sun.png")),
-                                                        size=(20, 20))
+        self.window_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "window_icon.ico")),
+                                                        size=(32, 32))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
                                                  dark_image=Image.open(os.path.join(
                                                      image_path, "home_light.png")),
@@ -533,16 +533,16 @@ class App(customtkinter.CTk):
         ########
         # Значения по умолчанию
         # set default values
-        self.wind_entry.insert(0, 12)
-        self.windgust_entry.insert(0, 37)
-        self.visibility_entry.insert(0, 1500)
-        self.wind_dir_entry.insert(0, 250)
-        self.temperature_entry.insert(0, -21.6)
-        self.humidity_entry.insert(0, 0)
-        self.cloud_base_lower_entry.insert(0, 700)
-        self.pressure_helideck_entry.insert(0, 747.7)
-        self.pressure_sea_level_entry.insert(0, 1012.4)
-        self.dew_point_temperature_entry.insert(0, -22.9)
+        # self.wind_entry.insert(0, 12)
+        # self.windgust_entry.insert(0, 37)
+        # self.visibility_entry.insert(0, 1500)
+        # self.wind_dir_entry.insert(0, 250)
+        # self.temperature_entry.insert(0, -21.6)
+        # self.humidity_entry.insert(0, 0)
+        # self.cloud_base_lower_entry.insert(0, 700)
+        # self.pressure_helideck_entry.insert(0, 747.7)
+        # self.pressure_sea_level_entry.insert(0, 1012.4)
+        # self.dew_point_temperature_entry.insert(0, -22.9)
         #
         self.wave_height_entry.insert(0, 0)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
