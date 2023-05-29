@@ -152,13 +152,16 @@ def local_date_time_cod(date_time_string, set_report_time):  # Дата и вр�
 
 
 def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
+    wind_direction = wind_direction_cod(wd)
     wind_speed = wind_speed_cod(ws)
     wind_gust = wind_gust_cod(wg)
-    if int(wg) - int(ws) < 3:
-        wind_metar = f'{wind_speed}MPS'
+    if wind_speed == 0:
+        wind_metar = '00000MPS'
+    elif int(wg) - int(ws) < 3:
+        wind_metar = f'{wind_direction}{wind_speed}MPS'
     else:
-        wind_metar = f'{wind_speed}G{wind_gust}MPS'
-    wind_direction = wind_direction_cod(wd)
+        wind_metar = f'{wind_direction}{wind_speed}G{wind_gust}MPS'
+
     visibility = visibility_cod(v)
     weather_conditions = weather_conditions_cod(wc)
     pressure_helideck = pressure_helideck_cod(ph)
@@ -170,14 +173,13 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     wave_height = wave_height_cod(wh)
     rmk = f' {str(pressure_helideck)} {str(wave_height)}'
     cbl_round = str((int(cbl) // 10) * 10).zfill(3)
-    print(date_time_for_metar)
+
     if int(visibility) < 8000 and weather_conditions == 'NN':
         return 'Укажи атмосферное явление!'
     if int(cbl) < 200:
         rmk = f' QBB{cbl_round} {str(pressure_helideck)} {str(wave_height)}'
     if weather_conditions == 'NN':
         metar_data = f'{date_time_for_metar}Z ' \
-                     f'{str(wind_direction)}' \
                      f'{str(wind_metar)} ' \
                      f'{str(visibility)} ' \
                      f'{str(total_clouds)} ' \
@@ -188,7 +190,6 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
 
     else:
         metar_data = f'{date_time_for_metar}Z ' \
-                     f'{str(wind_direction)}' \
                      f'{str(wind_metar)} ' \
                      f'{str(visibility)} ' \
                      f'{str(weather_conditions)} ' \
@@ -197,8 +198,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
                      f'{str(dew_point_temperature)} ' \
                      f'{str(pressure_sea_level)} RMK' \
                      f'{rmk}'
-    print(total_clouds)
-    print(visibility)
+
     return f'ЩЭФАП METAR UHSC {metar_data}'
 
 
@@ -206,8 +206,10 @@ def wind_speed_cod(data):  # Средняя скорость ветра (м/c)
     '''Максимальный порыв ветра (м/с)
     Принимает значение скорости ветра в м/с и возвращает код METAR'''
     data = int(data)
-    if 0 <= data < 10:
+    if 1 <= data < 10:
         return str(data).zfill(2)
+    elif data < 1:
+        return 0
     else:
         return str(data)
 

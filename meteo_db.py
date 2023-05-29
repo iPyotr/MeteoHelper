@@ -7,10 +7,10 @@ from openpyxl.styles import Alignment, PatternFill
 from openpyxl.utils import datetime
 from datetime import datetime
 
-db_dir_name = f"C:/Apps/MeteoHelperData/"
+
 def create_db_luna():  # Создание базы данных
-    global db_dir_name
-    db = sqlite3.connect(f'{db_dir_name}luna.db')
+
+    db = sqlite3.connect(f'C:/Apps/DataBase/new_luna.db')
     c = db.cursor()
 
     c.execute("""CREATE TABLE meteo (
@@ -49,10 +49,9 @@ def delete_all_data():  # Удаление всех данных из базы
     db.close()
 
 
-def check_data(date, time):
+def check_data(date, time, db_dir_name, database_name):
     # Creating a connection to the database
-    global db_dir_name
-    conn = sqlite3.connect(f'{db_dir_name}luna.db')
+    conn = sqlite3.connect(f'{db_dir_name}{database_name}')
     # Creating a cursor object
     cursor = conn.cursor()
 
@@ -74,21 +73,19 @@ def check_data(date, time):
 
 
 def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust,
-                visibility, weather_condition, temperature,
-                dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli,
-                pressure_sea_level,
-                wave, comments, metar_cod):
-    global db_dir_name
+                visibility, weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds,
+                cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments, metar_cod, db_dir_name, database_name):
+
 
     # Checking if data already exists for the specified time and date
-    if check_data(date_utc, time_utc):
-        # Displaying a messagebox asking the user if they want to overwrite the data
+    if check_data(date_utc, time_utc, db_dir_name, database_name):
+        # Displaying a messagebox asking the user if they want,  to overwrite the data
         result = messagebox.askyesno("Данные уже существуют",
                                      "Информация на выбранную дату и время уже существует в базе данных и будет перезаписана.")
         # If the user chooses to overwrite the data, proceed with the insertion
         if result:
             # Creating a connection to the database
-            conn = sqlite3.connect(f'{db_dir_name}luna.db')
+            conn = sqlite3.connect(f'{db_dir_name}{database_name}')
             # Creating a cursor object
             cursor = conn.cursor()
 
@@ -112,7 +109,7 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
 
     else:
         # Creating a connection to the database
-        conn = sqlite3.connect(f'{db_dir_name}luna.db')
+        conn = sqlite3.connect(f'{db_dir_name}{database_name}')
 
         # Creating a cursor object
         cursor = conn.cursor()
@@ -135,12 +132,12 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
         messagebox.showinfo("Информация внесена в базу данных", "Данные успешно сохранены!")
 
 
-def select_from_db(from_date, to_date):
-    global db_dir_name
+def select_from_db(from_date, to_date, db_dir_name, database_name):
+
     from_db = str(from_date)
     to_db = str(to_date)
 
-    db = sqlite3.connect(f'{db_dir_name}luna.db')
+    db = sqlite3.connect(f'{db_dir_name}{database_name}')
     c = db.cursor()
     query = "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, weather_condition," \
             "temperature,dew_point, humidity, qt_clouds, qt_lower_clouds, cloud_base, clouds_type, pressure_heli, " \
@@ -173,11 +170,12 @@ def insert_additional_data(data):
     conn.close()
 
 
-def data_for_excel(from_date, to_date, comments):
-    global db_dir_name
+def data_for_excel(from_date, to_date, comments, db_dir_name, database_name, folder_path, folder_name):
+    excel_folder_name = folder_path
+    excel_folder_path = folder_name
     start_date = from_date
     end_date = to_date
-    conn = sqlite3.connect(f'{db_dir_name}luna.db')
+    conn = sqlite3.connect(f'{db_dir_name}{database_name}')
     # Формируем параметризованный запрос
     query = "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, " \
             "weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, " \
@@ -200,11 +198,12 @@ def data_for_excel(from_date, to_date, comments):
     conn.close()
     if comments == 0:
         df = df.drop('Комментарии', axis=1)
-    export_to_excel(df, start_date, end_date)
+    export_to_excel(df, start_date, end_date, excel_folder_path, excel_folder_name)
 
 
 
-def export_to_excel(df, from_date, to_date):
+def export_to_excel(df, from_date, to_date, folder_path, folder_name):
+    dir_name = f'{folder_name}{folder_path}'
     start_date = from_date
     end_date = to_date
     # Преобразование формата даты для выгрузки в Excel
@@ -212,7 +211,6 @@ def export_to_excel(df, from_date, to_date):
     df['Дата UTC'] = df['Дата UTC'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d').date())
 
     # Save DataFrame to Excel file
-    dir_name = f"C:/Apps/MeteoHelperData/Excel/"
     file_name = f"LUNA_выгрузка данных за период {start_date} - {end_date}.xlsx"
     df.to_excel(f"{dir_name}{file_name}", engine='openpyxl', index=False)
 

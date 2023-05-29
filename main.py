@@ -7,17 +7,25 @@ import time
 from tkinter import ttk
 from datetime import datetime
 from tkcalendar import DateEntry
+import configparser
 
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-
-        self.title("Meteo Helper v0.2.4")
+        self.title("Meteo Helper v0.3.0")
         self.iconbitmap('img/icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
         self.resizable(width=False, height=False)
+
+        # Путь к базе и папке программы
+        self.config = configparser.ConfigParser()
+        self.config.read('default.ini')
+        self.db_dir_name_main = self.config.get('database', 'data_base_dir')
+        self.database_name_main = self.config.get('database', 'data_base_name')
+        self.excel_folder_path_main = self.config.get('excel', 'excel_folder_path')
+        self.excel_folder_name_main = self.config.get('excel', 'excel_folder_name')
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)
@@ -475,15 +483,47 @@ class App(customtkinter.CTk):
         self.about_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.dev_label = customtkinter.CTkLabel(self.about_frame, text=f"Разработчик: Писанко Пётр Фёдорович",
                                                 font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.dev_label.grid(row=0, column=0, pady=(10, 0), padx=10, sticky='W')
+        self.dev_label.grid(row=0, column=0, pady=(25, 0), padx=10, sticky='W', columnspan=3)
         self.expert_label = customtkinter.CTkLabel(self.about_frame,
                                                    text=f"Главный консультант: Сухоручкин Валерий Валерьевич",
                                                    font=customtkinter.CTkFont(size=14, weight="bold"))
-        self.expert_label.grid(row=1, column=0, pady=(0, 0), padx=10, sticky='W')
-        # self.thanks_label = customtkinter.CTkLabel(self.about_frame,
-        #                                            text=f"Отдельная благодарность: Кармадонову Сергею Викторовичу",
-        #                                            font=customtkinter.CTkFont(size=14, weight="bold"))
-        # self.thanks_label.grid(row=2, column=0, pady=(10, 0), padx=10, sticky='W')
+        self.expert_label.grid(row=1, column=0, pady=(0, 0), padx=10, sticky='W', columnspan=3)
+
+        # Служебная инфрмация
+        self.db_dir_label = customtkinter.CTkLabel(self.about_frame,
+                                                    text=f"Путь к базе данных:",
+                                                    font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.db_dir_label.grid(row=10, column=0, pady=(100, 0), padx=10, sticky='W')
+        self.db_dir_path_label = customtkinter.CTkLabel(self.about_frame,
+                                                        text=self.db_dir_name_main,
+                                                        font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.db_dir_path_label.grid(row=10, column=1, pady=(100, 0), padx=0, sticky='W')
+
+        self.db_name_label = customtkinter.CTkLabel(self.about_frame,
+                                                   text=f"Название базы данных:",
+                                                   font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.db_name_label.grid(row=11, column=0, pady=(0, 0), padx=10, sticky='W')
+        self.db_name_path_label = customtkinter.CTkLabel(self.about_frame,
+                                                         text=self.database_name_main,
+                                                         font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.db_name_path_label.grid(row=11, column=1, pady=(0, 0), padx=0, sticky='w')
+
+        self.excel_path_label = customtkinter.CTkLabel(self.about_frame,
+                                                    text=f"Путь к папке для выгрузки отчётов excel:",
+                                                    font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.excel_path_label.grid(row=12, column=0, pady=(0, 0), padx=10, sticky='W')
+        self.excel_folder_name_label = customtkinter.CTkLabel(self.about_frame,
+                                                              text=self.excel_folder_path_main,
+                                                              font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.excel_folder_name_label.grid(row=12, column=1, pady=(0, 0), padx=0, sticky='W')
+        self.excel_path_label = customtkinter.CTkLabel(self.about_frame,
+                                                       text=f"Название папки для выгрузки отчётов excel:",
+                                                       font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.excel_path_label.grid(row=13, column=0, pady=(0, 0), padx=10, sticky='W')
+        self.excel_folder_name_label = customtkinter.CTkLabel(self.about_frame,
+                                                              text=self.excel_folder_name_main,
+                                                              font=customtkinter.CTkFont(size=14, weight="normal"))
+        self.excel_folder_name_label.grid(row=13, column=1, pady=(0, 0), padx=0, sticky='W')
 
         # select default frame
         self.select_frame_by_name("home")
@@ -493,16 +533,16 @@ class App(customtkinter.CTk):
         ########
         # Значения по умолчанию
         # set default values
-        # self.wind_entry.insert(0, 12)
-        # self.windgust_entry.insert(0, 37)
-        # self.visibility_entry.insert(0, 1500)
-        # self.wind_dir_entry.insert(0, 250)
-        # self.temperature_entry.insert(0, -21.6)
-        # self.humidity_entry.insert(0, 0)
-        # self.cloud_base_lower_entry.insert(0, 700)
-        # self.pressure_helideck_entry.insert(0, 747.7)
-        # self.pressure_sea_level_entry.insert(0, 1012.4)
-        # self.dew_point_temperature_entry.insert(0, -22.9)
+        self.wind_entry.insert(0, 12)
+        self.windgust_entry.insert(0, 37)
+        self.visibility_entry.insert(0, 1500)
+        self.wind_dir_entry.insert(0, 250)
+        self.temperature_entry.insert(0, -21.6)
+        self.humidity_entry.insert(0, 0)
+        self.cloud_base_lower_entry.insert(0, 700)
+        self.pressure_helideck_entry.insert(0, 747.7)
+        self.pressure_sea_level_entry.insert(0, 1012.4)
+        self.dew_point_temperature_entry.insert(0, -22.9)
         #
         self.wave_height_entry.insert(0, 0)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
@@ -552,7 +592,12 @@ class App(customtkinter.CTk):
     def data_to_excel_period(self):
         data_for_excel(self.for_excel_from_date_picker.get_date(),
                        self.for_excel_to_date_picker.get_date(),
-                       self.checkbox_comments.get())
+                       self.checkbox_comments.get(),
+                       self.db_dir_name_main,
+                       self.database_name_main,
+                       self.excel_folder_path_main,
+                       self.excel_folder_name_main
+                       )
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -578,7 +623,6 @@ class App(customtkinter.CTk):
             e_s = (6.11 * 10^((7.5 * T) / (237.7 + T))) * (10^(2) / (T + 273.15)) - абсолютная влажность воздуха при сухом воздухе
             RH - относительная влажность воздуха в процентах
             """
-
         T = float(self.temperature_entry.get())
         Td = float(self.dew_point_temperature_entry.get())
         e = (6.11 * 10 ** ((7.5 * Td) / (237.7 + Td))) * \
@@ -691,9 +735,7 @@ class App(customtkinter.CTk):
         print(self.metar_output.cget('text'))
         if self.metar_output.cget('text') != 'Укажи атмосферное явление!':
             self.db_insert(date_utc, time_utc, local_date_for_db, local_time_for_db)
-            print('dt_metar', dt_metar)
-            print('date_utc', date_utc)
-            print('time_utc', time_utc)
+
 
     def send_email(self):
         data = self.metar_output.cget('text')
@@ -726,9 +768,12 @@ class App(customtkinter.CTk):
             self.metar_output.configure(text=metar_data)
 
     def db_insert(self, date_utc, time_utc, local_date_for_db, local_time_for_db):
-        wind_direction = int(wind_direction_cod(self.wind_dir_entry.get()))
+        wind_direction = wind_direction_cod(self.wind_dir_entry.get())
         wind_speed = wind_speed_cod(self.wind_entry.get())
         wind_gust = wind_gust_cod(self.windgust_entry.get())
+        if wind_speed == 0:
+            wind_direction = '/'
+            wind_gust = 0
         visibility = self.visibility_entry.get()
         weather_condition = weather_conditions_cod([self.weather_conditions_optionmenu.get(),
                                                     self.weather_conditions_optionmenu2.get(),
@@ -750,17 +795,26 @@ class App(customtkinter.CTk):
 
         insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust,
                     visibility, weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds,
-                    cloud_base, clouds_type_cod, pressure_heli, pressure_sea_level, wave, comments, metar_cod_cod)
+                    cloud_base, clouds_type_cod, pressure_heli, pressure_sea_level, wave, comments, metar_cod_cod,
+                    self.db_dir_name_main, self.database_name_main)
 
     def history_table(self):
         data = select_from_db(self.history_from_date_picker.get_date(),
-                              self.history_to_date_picker.get_date())
+                              self.history_to_date_picker.get_date(),
+                              self.db_dir_name_main,
+                              self.database_name_main
+                              )
 
         for i in self.tree.get_children():
             self.tree.delete(i)
 
         for row in data:
             self.tree.insert("", 'end', values=row)
+
+    def return_database_var(self):
+
+        return self.db_dir_name_main, self.database_name_main, self.excel_folder_path_main, self.excel_folder_name_main
+
 
 
 if __name__ == "__main__":
