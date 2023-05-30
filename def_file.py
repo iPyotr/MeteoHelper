@@ -155,6 +155,7 @@ def metar_cod(ws, wg, wd, v, wc, ph, psl, t, dpt, h, tc, qc, cbl, cf, wh):
     wind_direction = wind_direction_cod(wd)
     wind_speed = wind_speed_cod(ws)
     wind_gust = wind_gust_cod(wg)
+
     if wind_speed == 0:
         wind_metar = '00000MPS'
     elif int(wg) - int(ws) < 3:
@@ -371,8 +372,12 @@ def clouds_form(cf1, cf2, cf3):
     return cf_all.strip()
 
 
-def wave_height_cod(data):  # Высота преобладающих волн (м)
-    ''' Высота преобладающих волн (м) с точностью до 0.1 метра
-    Принимает значение высоты преобладающих волн в метрах и возвращает код METAR'''
+def wave_height_cod(data):  # Высота преобладающих волн (см)
+    ''' Высота преобладающих волн (см) с точностью до 1 сантиметра
+    Принимает значение высоты преобладающих волн в сантиметрах и возвращает код METAR'''
     x = int(data)
-    return 'HSAUT' + str((x // 10) * 10).zfill(3)
+    if x > 999:
+        result = 999
+    else:
+        result = str((x // 10) * 10).zfill(3)
+    return f"HSAUT{result}"

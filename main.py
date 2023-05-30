@@ -2,6 +2,7 @@ import customtkinter
 from PIL import Image
 from meteo_db import *
 from def_file import *
+from check_input import *
 import webbrowser
 import time
 from tkinter import ttk
@@ -26,6 +27,14 @@ class App(customtkinter.CTk):
         self.database_name_main = self.config.get('database', 'data_base_name')
         self.excel_folder_path_main = self.config.get('excel', 'excel_folder_path')
         self.excel_folder_name_main = self.config.get('excel', 'excel_folder_name')
+        ###
+        ###
+        self.recipient_from_ini = self.config.get('send_email', 'recipient')
+        self.cc_from_ini = self.config.get('send_email', 'cc')
+        self.bcc_from_ini = self.config.get('send_email', 'bcc')
+        self.subject_from_ini = self.config.get('send_email', 'subject')
+
+        ###
 
         # set grid layout 1x2
         self.grid_rowconfigure(0, weight=1)
@@ -265,7 +274,7 @@ class App(customtkinter.CTk):
         self.wind_dir_entry.configure(justify='center')
         self.wind_dir_entry.grid(
             row=2, column=1, padx=0, pady=(20, 0), sticky="W")
-        self.wind_label.grid(row=3, column=0, padx=(0, 0),
+        self.wind_label.grid(row=3, column=0, padx=(0, 10),
                              pady=(5, 0), sticky='E')
         self.wind_entry.configure(justify='center')
         self.wind_entry.grid(row=3, column=1, padx=(0, 0),
@@ -310,7 +319,7 @@ class App(customtkinter.CTk):
             row=11, column=1, padx=(0, 0), pady=(5, 0), sticky="W")
         # правая колонка данных
         self.total_clouds_label.grid(
-            row=2, column=2, padx=(0, 0), pady=(20, 0), sticky='E')
+            row=2, column=2, padx=(0, 10), pady=(20, 0), sticky='E')
         self.total_clouds_optionmenu.grid(
             row=2, column=3, padx=(0, 50), pady=(20, 0), sticky='W')
         self.quantity_clouds_label.grid(
@@ -468,7 +477,7 @@ class App(customtkinter.CTk):
         self.for_excel_to_date_picker.configure(justify='center')
 
         self.checkbox_comments = customtkinter.CTkCheckBox(self.additional_func_tab.tab("Экспорт в excel"),
-                                                    text='Включить комментарии в выгрузку')
+                                                           text='Включить комментарии в выгрузку')
         self.checkbox_comments.grid(row=1, column=3, pady=(10, 0), padx=10, sticky='EW')
 
         # Кнопка для экспорта данных из базы данных в файл excel
@@ -491,8 +500,8 @@ class App(customtkinter.CTk):
 
         # Служебная инфрмация
         self.db_dir_label = customtkinter.CTkLabel(self.about_frame,
-                                                    text=f"Путь к базе данных:",
-                                                    font=customtkinter.CTkFont(size=14, weight="normal"))
+                                                   text=f"Путь к базе данных:",
+                                                   font=customtkinter.CTkFont(size=14, weight="normal"))
         self.db_dir_label.grid(row=10, column=0, pady=(100, 0), padx=10, sticky='W')
         self.db_dir_path_label = customtkinter.CTkLabel(self.about_frame,
                                                         text=self.db_dir_name_main,
@@ -500,8 +509,8 @@ class App(customtkinter.CTk):
         self.db_dir_path_label.grid(row=10, column=1, pady=(100, 0), padx=0, sticky='W')
 
         self.db_name_label = customtkinter.CTkLabel(self.about_frame,
-                                                   text=f"Название базы данных:",
-                                                   font=customtkinter.CTkFont(size=14, weight="normal"))
+                                                    text=f"Название базы данных:",
+                                                    font=customtkinter.CTkFont(size=14, weight="normal"))
         self.db_name_label.grid(row=11, column=0, pady=(0, 0), padx=10, sticky='W')
         self.db_name_path_label = customtkinter.CTkLabel(self.about_frame,
                                                          text=self.database_name_main,
@@ -509,8 +518,8 @@ class App(customtkinter.CTk):
         self.db_name_path_label.grid(row=11, column=1, pady=(0, 0), padx=0, sticky='w')
 
         self.excel_path_label = customtkinter.CTkLabel(self.about_frame,
-                                                    text=f"Путь к папке для выгрузки отчётов excel:",
-                                                    font=customtkinter.CTkFont(size=14, weight="normal"))
+                                                       text=f"Путь к папке для выгрузки отчётов excel:",
+                                                       font=customtkinter.CTkFont(size=14, weight="normal"))
         self.excel_path_label.grid(row=12, column=0, pady=(0, 0), padx=10, sticky='W')
         self.excel_folder_name_label = customtkinter.CTkLabel(self.about_frame,
                                                               text=self.excel_folder_path_main,
@@ -533,18 +542,18 @@ class App(customtkinter.CTk):
         ########
         # Значения по умолчанию
         # set default values
-        # self.wind_entry.insert(0, 12)
-        # self.windgust_entry.insert(0, 37)
-        # self.visibility_entry.insert(0, 1500)
-        # self.wind_dir_entry.insert(0, 250)
-        # self.temperature_entry.insert(0, -21.6)
-        # self.humidity_entry.insert(0, 0)
-        # self.cloud_base_lower_entry.insert(0, 700)
-        # self.pressure_helideck_entry.insert(0, 747.7)
-        # self.pressure_sea_level_entry.insert(0, 1012.4)
-        # self.dew_point_temperature_entry.insert(0, -22.9)
+        self.wind_entry.insert(0, 12)
+        self.windgust_entry.insert(0, 37)
+        self.visibility_entry.insert(0, 1500)
+        self.wind_dir_entry.insert(0, 250)
+        self.temperature_entry.insert(0, -21.6)
+        self.humidity_entry.insert(0, 0)
+        self.cloud_base_lower_entry.insert(0, 700)
+        self.pressure_helideck_entry.insert(0, 747.7)
+        self.pressure_sea_level_entry.insert(0, 1012.4)
+        self.dew_point_temperature_entry.insert(0, -22.9)
         #
-        self.wave_height_entry.insert(0, 0)
+        self.wave_height_entry.insert(0, 000)
         self.weather_conditions_optionmenu.set("явлений не наблюдается")
         self.weather_conditions_optionmenu2.set("")
         self.weather_conditions_optionmenu2.grid_remove()
@@ -701,41 +710,47 @@ class App(customtkinter.CTk):
 
     def click_metar(self):  # формирование кода метар
         self.metar_output.configure(text='проверь введённые данные')
-        global dt_metar
-        clouds_metar = [self.visibility_entry.get(),
-                        self.total_clouds_optionmenu.get(),
-                        self.quantity_clouds_optionmenu.get(),
-                        self.cloud_base_lower_entry.get()]
-        wc = [self.weather_conditions_optionmenu.get(),
-              self.weather_conditions_optionmenu2.get(),
-              self.weather_conditions_optionmenu3.get()]
-        datetime_utc = str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))
-        set_report_time = self.set_report_time_button_var.get()
-        local_datetime = str(time.strftime("%Y/%m/%d %H:%M:%S"))
-        dt_metar, date_utc, time_utc = date_time_cod(datetime_utc, set_report_time)
-        local_date_for_db, local_time_for_db = local_date_time_cod(local_datetime, set_report_time)
+        if self.check_input_fields() == 1:
+            if wind_speed_cod(self.wind_entry.get()) <= wind_gust_cod(self.windgust_entry.get()):
 
-        metar_all = metar_cod(self.wind_entry.get(),
-                              self.windgust_entry.get(),
-                              self.wind_dir_entry.get(),
-                              self.visibility_entry.get(),
-                              wc,
-                              self.pressure_helideck_entry.get(),
-                              self.pressure_sea_level_entry.get(),
-                              self.temperature_entry.get(),
-                              self.dew_point_temperature_entry.get(),
-                              self.humidity_entry.get(),
-                              clouds_metar,
-                              self.quantity_clouds_optionmenu.get(),
-                              self.cloud_base_lower_entry.get(),
-                              self.cloud_form_optionmenu.get(),
-                              self.wave_height_entry.get()
-                              )
-        self.metar_output.configure(text=metar_all)  # #
-        print(self.metar_output.cget('text'))
-        if self.metar_output.cget('text') != 'Укажи атмосферное явление!':
-            self.db_insert(date_utc, time_utc, local_date_for_db, local_time_for_db)
+                global dt_metar
+                clouds_metar = [self.visibility_entry.get(),
+                                self.total_clouds_optionmenu.get(),
+                                self.quantity_clouds_optionmenu.get(),
+                                self.cloud_base_lower_entry.get()]
+                wc = [self.weather_conditions_optionmenu.get(),
+                      self.weather_conditions_optionmenu2.get(),
+                      self.weather_conditions_optionmenu3.get()]
+                datetime_utc = str(datetime.utcnow().strftime("%d/%m/%Y %H:%M"))
+                set_report_time = self.set_report_time_button_var.get()
+                local_datetime = str(time.strftime("%Y/%m/%d %H:%M:%S"))
+                dt_metar, date_utc, time_utc = date_time_cod(datetime_utc, set_report_time)
+                local_date_for_db, local_time_for_db = local_date_time_cod(local_datetime, set_report_time)
 
+                metar_all = metar_cod(self.wind_entry.get(),
+                                      self.windgust_entry.get(),
+                                      self.wind_dir_entry.get(),
+                                      self.visibility_entry.get(),
+                                      wc,
+                                      self.pressure_helideck_entry.get(),
+                                      self.pressure_sea_level_entry.get(),
+                                      self.temperature_entry.get(),
+                                      self.dew_point_temperature_entry.get(),
+                                      self.humidity_entry.get(),
+                                      clouds_metar,
+                                      self.quantity_clouds_optionmenu.get(),
+                                      self.cloud_base_lower_entry.get(),
+                                      self.cloud_form_optionmenu.get(),
+                                      self.wave_height_entry.get()
+                                      )
+                self.metar_output.configure(text=metar_all)  # #
+                print(self.metar_output.cget('text'))
+                if self.metar_output.cget('text') != 'Укажи атмосферное явление!':
+                    self.db_insert(date_utc, time_utc, local_date_for_db, local_time_for_db)
+            else:
+                messagebox.showinfo(title='Скорость ветра', message=f"Скорость ветра указана больше порыва!")
+        else:
+            messagebox.showwarning("Ошибка в данных", f"Проверь введённые данные в полях: {self.check_input_fields()}")
 
     def send_email(self):
         data = self.metar_output.cget('text')
@@ -743,13 +758,13 @@ class App(customtkinter.CTk):
             data += ' ' + self.comments.get() + ' -'
         else:
             data += ' -'
-        recipient = ['pogoda10@sakhugms.ru']
-        cc = ['METAR']
-        bcc = []
-        subject = 'METAR'
-        recipient_string = ";".join(recipient)
-        cc_string = ";".join(cc)
-        bcc_string = ";".join(bcc)
+        recipient = self.recipient_from_ini # ['pogoda10@sakhugms.ru']
+        cc = self.cc_from_ini # ['METAR']
+        bcc = self.bcc_from_ini # []
+        subject = self.subject_from_ini # 'METAR'
+        recipient_string = recipient # ";".join(recipient)
+        cc_string = cc # ";".join(cc)
+        bcc_string = bcc # ";".join(bcc)
         webbrowser.open(
             'mailto:' + recipient_string +
             '?cc=' + cc_string +
@@ -811,10 +826,28 @@ class App(customtkinter.CTk):
         for row in data:
             self.tree.insert("", 'end', values=row)
 
-    def return_database_var(self):
-
-        return self.db_dir_name_main, self.database_name_main, self.excel_folder_path_main, self.excel_folder_name_main
-
+    def check_input_fields(self):
+        wind_direction = wind_direction_check(self.wind_dir_entry.get())
+        wind_speed = wind_speed_check(self.wind_entry.get())
+        wind_gust = wind_gust_check(self.windgust_entry.get())
+        visibility = visibility_check(self.visibility_entry.get())
+        temperature = temperature_check(self.temperature_entry.get())
+        dew_point = dew_point_check(self.dew_point_temperature_entry.get())
+        humidity = humidity_check(self.humidity_entry.get())
+        cloud_base = cloud_base_check(self.cloud_base_lower_entry.get())
+        pressure_heli = pressure_heli_check(self.pressure_helideck_entry.get())
+        pressure_sea_level = pressure_sea_level_check(self.pressure_sea_level_entry.get())
+        wave = wave_check(self.wave_height_entry.get())
+        filds = [wind_direction, wind_speed, wind_gust, visibility, temperature, dew_point, humidity, cloud_base,
+                 pressure_heli, pressure_sea_level, wave]
+        if sum([i for i in filds if i == 1]) == 11:
+            return 1
+        else:
+            result = ' '
+            for elem in filds:
+                if elem != 1:
+                    result += '\n' + elem
+            return result
 
 
 if __name__ == "__main__":
