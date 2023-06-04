@@ -793,6 +793,8 @@ class App(customtkinter.CTk):
         weather_condition = weather_conditions_cod([self.weather_conditions_optionmenu.get(),
                                                     self.weather_conditions_optionmenu2.get(),
                                                     self.weather_conditions_optionmenu3.get()])
+        if weather_condition == 'NN':
+            weather_condition = '/'
         temperature = self.temperature_entry.get()
         dew_point = self.dew_point_temperature_entry.get()
         humidity = self.humidity_entry.get()
