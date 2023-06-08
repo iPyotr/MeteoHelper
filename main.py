@@ -14,7 +14,7 @@ import configparser
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Meteo Helper v0.3.3")
+        self.title("Meteo Helper v0.3.4")
         self.wm_iconbitmap('img/window_icon.ico')
         self.geometry(
             "1150x690+{}+{}".format(self.winfo_screenwidth() // 2 - 600, self.winfo_screenheight() // 2 - 340))
@@ -755,9 +755,9 @@ class App(customtkinter.CTk):
     def send_email(self):
         data = self.metar_output.cget('text')
         if self.checkbox_1.get() == 1:
-            data += ' ' + self.comments.get() + ' -'
+            data += ' ' + self.comments.get() + '-'
         else:
-            data += ' -'
+            data += '-'
         recipient = self.recipient_from_ini # ['pogoda10@sakhugms.ru']
         cc = self.cc_from_ini # ['METAR']
         bcc = self.bcc_from_ini # []
