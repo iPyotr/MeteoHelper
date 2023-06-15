@@ -1,5 +1,10 @@
 from cx_Freeze import setup, Executable
-#
+from main import App
+
+#### python setup.py build
+
+cls = App()
+version_n = cls.vers_n.get()
 
 base = "Win32GUI"
 
@@ -21,7 +26,7 @@ build_exe_options = {
 
 setup(
     name="Meteo Helper",
-    version='0.3.5',
+    version=version_n,
     description="Лёгкое кодирование погоды в METAR",
     options={'build_exe': build_exe_options},
     executables=executables
