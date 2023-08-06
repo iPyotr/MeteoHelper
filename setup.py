@@ -1,6 +1,7 @@
 from cx_Freeze import setup, Executable
 from main import App
 
+## запуск скрипта
 #### python setup.py build
 
 cls = App()
