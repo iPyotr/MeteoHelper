@@ -14,7 +14,7 @@ import configparser
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-        self.vers_n = customtkinter.StringVar(value='0.3.5.1')
+        self.vers_n = customtkinter.StringVar(value='0.3.5.2')
         self.title(f"Meteo Helper {self.vers_n.get()}")
         self.wm_iconbitmap('img/window_icon.ico')
         self.geometry(

@@ -71,12 +71,10 @@ def check_data(date, time, db_dir_name, database_name):
         return False
 
 
-
 def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust,
                 visibility, weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds,
-                cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments, metar_cod, db_dir_name, database_name):
-
-
+                cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments, metar_cod, db_dir_name,
+                database_name):
     # Checking if data already exists for the specified time and date
     if check_data(date_utc, time_utc, db_dir_name, database_name):
         # Displaying a messagebox asking the user if they want,  to overwrite the data
@@ -133,7 +131,6 @@ def insert_data(local_date_for_db, local_time_for_db, date_utc, time_utc, wind_d
 
 
 def select_from_db(from_date, to_date, db_dir_name, database_name):
-
     from_db = str(from_date)
     to_db = str(to_date)
 
@@ -187,19 +184,29 @@ def data_for_excel(from_date, to_date, comments, db_dir_name, database_name, fol
     # Выполняем запрос с использованием параметров
     df = pd.read_sql_query(query, params={"start_date": start_date, "end_date": end_date}, con=conn)
 
-    dic_col = {'date_utc': 'Дата UTC', 'time_utc': 'Время UTC', 'wind_direction': 'Направление ветра',
-               'wind_speed': 'Скорость ветра', 'wind_gust': 'Порыв ветра', 'visibility': 'Горизонтальная видимость',
-               'weather_condition': 'Атмосферные явления', 'temperature': 'Температура воздуха',
-               'dew_point': 'Точка росы', 'humidity': 'Влажность воздуха', 'qt_clouds': 'Общее воличество облаков',
-               'qt_lower_clouds': 'Количество облаков нижнего яруса', 'cloud_base': 'Нижняя граница облачности',
-               'clouds_type': 'Тип облачности', 'pressure_heli': 'Давление на уровне вертолётной площадки',
-               'pressure_sea_level': 'Давление на уровне моря', 'wave': 'Высота волн', 'comments': 'Комментарии'}
+    dic_col = {'date_utc': 'Дата', 'time_utc': 'Время(СГВ)', 'wind_direction': 'Направление ветра(град)',
+               'wind_speed': 'Средняя скорость ветра(м/с)', 'wind_gust': 'Максимальный порыв ветра(м/с)',
+               'visibility': 'Горизонтальная видимость(км)',
+               'weather_condition': 'Атмосферные явления', 'temperature': 'Температура воздуха(град)',
+               'dew_point': 'Температура точки росы(град)', 'humidity': 'Влажность воздуха(°)',
+               'qt_clouds': 'Общее количество облаков(октанты)',
+               'qt_lower_clouds': 'Количество нижнего яруса(октанты)', 'cloud_base': 'Высота НГО(м)',
+               'clouds_type': 'Форма облачности', 'pressure_heli': 'Давление на уровне вертолётной площадки(мм.рт.ст.)',
+               'pressure_sea_level': 'Давление на уровне моря(гПа)', 'wave': 'Высота преобладающих волн(м)',
+               'comments': 'Примечание'}
     df = df.rename(columns=dic_col)
     conn.close()
+    df['Название платформы'] = "LUN - A"
+    df = df[['Название платформы', 'Дата', 'Время(СГВ)', 'Направление ветра(град)', 'Средняя скорость ветра(м/с)',
+             'Максимальный порыв ветра(м/с)', 'Горизонтальная видимость(км)', 'Общее количество облаков(октанты)',
+             'Количество нижнего яруса(октанты)', 'Высота НГО(м)', 'Форма облачности', 'Атмосферные явления',
+             'Температура воздуха(град)', 'Температура точки росы(град)', 'Влажность воздуха(°)',
+             'Давление на уровне вертолётной площадки(мм.рт.ст.)', 'Давление на уровне моря(гПа)',
+             'Высота преобладающих волн(м)', 'Примечание']]
     if comments == 0:
-        df = df.drop('Комментарии', axis=1)
-    export_to_excel(df, start_date, end_date, excel_folder_path, excel_folder_name)
+        df = df.drop('Примечание', axis=1)
 
+    export_to_excel(df, start_date, end_date, excel_folder_path, excel_folder_name)
 
 
 def export_to_excel(df, from_date, to_date, folder_path, folder_name):
@@ -208,7 +215,7 @@ def export_to_excel(df, from_date, to_date, folder_path, folder_name):
     end_date = to_date
     # Преобразование формата даты для выгрузки в Excel
     # Иначе при открытии файла дата не распознаётся как дата
-    df['Дата UTC'] = df['Дата UTC'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d').date())
+    df['Дата'] = df['Дата'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d').date())
 
     # Save DataFrame to Excel file
     file_name = f"LUNA_выгрузка данных за период {start_date} - {end_date}.xlsx"
@@ -226,10 +233,10 @@ def export_to_excel(df, from_date, to_date, folder_path, folder_name):
             elif isinstance(cell.value, float):
                 cell.number_format = '0.0'
     # Set the number format for the specific columns
-    for col in ["Температура воздуха",
-                "Точка росы",
-                "Давление на уровне вертолётной площадки",
-                "Давление на уровне моря"]:
+    for col in ["Температура воздуха(град)",
+                "Температура точки росы(град)",
+                "Давление на уровне вертолётной площадки(мм.рт.ст.)",
+                "Давление на уровне моря(гПа)"]:
         column_index = df.columns.get_loc(col) + 1
         for row in sheet.iter_rows(min_row=2, min_col=column_index, max_col=column_index):
             for cell in row:
@@ -245,7 +252,6 @@ def export_to_excel(df, from_date, to_date, folder_path, folder_name):
     # Включение отображения фильтра в первой строке
     sheet.auto_filter.ref = sheet.dimensions
 
-
     # Включение переноса слов и выравнивание текста по центру
     for row in sheet.iter_rows():
         for cell in row:
@@ -254,10 +260,18 @@ def export_to_excel(df, from_date, to_date, folder_path, folder_name):
     for column in sheet.columns:
         column_letter = column[0].column_letter
         sheet.column_dimensions[column_letter].width = 14
+    sheet.column_dimensions['A'].width = 12
+    sheet.column_dimensions['B'].width = 10
+    sheet.column_dimensions['C'].width = 7
+    sheet.column_dimensions['F'].width = 16
+    sheet.column_dimensions['G'].width = 16
+    sheet.column_dimensions['H'].width = 18
+    sheet.column_dimensions['I'].width = 15
+    sheet.column_dimensions['P'].width = 21
     # Зафризить первую строку
     sheet.freeze_panes = 'A2'
     # Установка формата "дата" для столбца
-    for cell in sheet['A']:
+    for cell in sheet['B']:
         cell.number_format = 'dd/mm/yyyy'
     # Save the Excel file
     book.save(f"{dir_name}{file_name}")
