@@ -174,7 +174,7 @@ def data_for_excel(from_date, to_date, comments, db_dir_name, database_name, fol
     end_date = to_date
     conn = sqlite3.connect(f'{db_dir_name}{database_name}')
     # Формируем параметризованный запрос
-    query = "SELECT date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, " \
+    query = "SELECT local_date_for_db, date_utc, time_utc, wind_direction, wind_speed, wind_gust, visibility, " \
             "weather_condition, temperature, dew_point, humidity, qt_clouds, qt_lower_clouds, " \
             "cloud_base, clouds_type, pressure_heli, pressure_sea_level, wave, comments " \
             "FROM meteo " \
@@ -198,7 +198,7 @@ def data_for_excel(from_date, to_date, comments, db_dir_name, database_name, fol
     conn.close()
     df['Горизонтальная видимость(км)'] = df['Горизонтальная видимость(км)'] / 1000
     df['Название платформы'] = "LUN - A"
-    df = df[['Название платформы', 'Дата', 'Время(СГВ)', 'Направление ветра(град)', 'Средняя скорость ветра(м/с)',
+    df = df[['local_date_for_db', 'Название платформы', 'Дата', 'Время(СГВ)', 'Направление ветра(град)', 'Средняя скорость ветра(м/с)',
              'Максимальный порыв ветра(м/с)', 'Горизонтальная видимость(км)', 'Общее количество облаков(октанты)',
              'Количество нижнего яруса(октанты)', 'Высота НГО(м)', 'Форма облачности', 'Атмосферные явления',
              'Температура воздуха(град)', 'Температура точки росы(град)', 'Влажность воздуха(%)',
@@ -214,6 +214,11 @@ def export_to_excel(df, from_date, to_date, folder_path, folder_name):
     dir_name = f'{folder_name}{folder_path}'
     start_date = from_date
     end_date = to_date
+    # df['local_date_for_db'] = pd.to_datetime(df['local_date_for_db'])
+    # months = df['local_date_for_db'].dt.month.unique()
+    # year = df['local_date_for_db'].dt.year.unique()
+    # print(months, year)
+    df = df.drop('local_date_for_db', axis=1)
     # Преобразование формата даты для выгрузки в Excel
     # Иначе при открытии файла дата не распознаётся как дата
     df['Дата'] = df['Дата'].apply(lambda date: datetime.strptime(date, '%Y-%m-%d').date())

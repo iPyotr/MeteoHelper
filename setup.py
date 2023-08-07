@@ -12,7 +12,10 @@ base = "Win32GUI"
 # Настройки исполняемого файла
 executable_name = 'MeteoHelper.exe'
 executables = [
-    Executable("main.py", base=base, target_name=executable_name, icon='img/icon.ico', copyright='Petr Pisanko')]
+    Executable("main.py", base=base,
+               target_name=executable_name,
+               icon='img/icon.ico',
+               copyright='©Petr Pisanko, 2023')]
 
 output_directory = 'build/MeteoHelper/'  # Папка вывода
 root_folder = 'img/'  # Папка для размещения в корне
